@@ -1,0 +1,203 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: 'Cera Pro';
+  font-weight: 400;
+  font-style: normal;
+  src: local('Cera Pro Regular'), local('CeraPro-Regular');
+}
+@font-face {
+  font-family: 'Cera Pro';
+  font-weight: 500;
+  font-style: normal;
+  src: local('Cera Pro Medium'), local('CeraPro-Medium');
+}
+@font-face {
+  font-family: 'Cera Pro';
+  font-weight: 700;
+  font-style: normal;
+  src: local('Cera Pro Bold'), local('CeraPro-Bold');
+}
+
+/* ===== MOCKUP A: Dark Immersive ===== */
+[data-theme="dark"] {
+  --color-page-bg: #0a1628;
+  --color-topbar-bg: #05183e;
+  --color-topbar-text: #f6f6f6;
+  --color-topbar-text-sub: #8899b0;
+  --color-topbar-border: #0a2550;
+  --color-header-bg: #05183e;
+  --color-header-border: #1a2a42;
+  --color-header-text: #f6f6f6;
+  --color-header-text-sub: #8899b0;
+  --color-header-nav-active-bg: rgba(43, 112, 182, 0.25);
+  --color-header-nav-active-text: #5ba3e0;
+  --color-header-nav-hover: rgba(255, 255, 255, 0.06);
+  --color-content-bg: #0a1628;
+  --color-card-bg: #0f2440;
+  --color-card-border: #1a3456;
+  --color-text-primary: #e0e8f0;
+  --color-text-secondary: #7a8fa8;
+  --color-text-heading: #ffffff;
+  --color-action: #2b70b6;
+  --color-action-hover: #2463a3;
+  --color-action-text: #ffffff;
+  --color-cta: #b92b30;
+  --color-cta-hover: #a02428;
+  --color-cta-text: #ffffff;
+  --color-link: #5ba3e0;
+  --color-tab-active-bg: rgba(43, 112, 182, 0.25);
+  --color-tab-active-text: #5ba3e0;
+  --color-tab-border: #1a3456;
+  --color-divider: #1a3456;
+  --color-icon-bg: #1a2a42;
+  --color-icon-stroke: #5ba3e0;
+  --color-input-bg: #0f2440;
+  --color-input-border: #1a3456;
+  --color-input-text: #f6f6f6;
+  --color-input-placeholder: #5a7090;
+  --color-group-header-bg: #1a2a42;
+  --color-group-header-text: #f6f6f6;
+  --color-early-bird-row: rgba(43, 112, 182, 0.08);
+  --color-badge-success-bg: #1a5c38;
+  --color-badge-success-text: #a3ceb6;
+  --color-badge-warning-bg: #5c4a1a;
+  --color-badge-warning-text: #f9e7a4;
+  --color-badge-critical-bg: #5c1a1e;
+  --color-badge-critical-text: #f7aaae;
+  --color-badge-waiting-bg: #5c3a1a;
+  --color-badge-waiting-text: #fbc7a2;
+  --color-map-bg: #1a2a42;
+  --color-sponsor-bg: #1a2a42;
+  --color-avatar-bg: #2b70b6;
+  --color-status-dot: #5ba3e0;
+  --color-gold: #b59960;
+}
+
+/* ===== MOCKUP B: Light Branded ===== */
+[data-theme="light"] {
+  --color-page-bg: #f0f3f8;
+  --color-topbar-bg: #05183e;
+  --color-topbar-text: #f6f6f6;
+  --color-topbar-text-sub: #8899b0;
+  --color-topbar-border: #0a2550;
+  --color-header-bg: #05183e;
+  --color-header-border: #0a2550;
+  --color-header-text: #f6f6f6;
+  --color-header-text-sub: #8899b0;
+  --color-header-nav-active-bg: rgba(91, 163, 224, 0.2);
+  --color-header-nav-active-text: #5ba3e0;
+  --color-header-nav-hover: rgba(255, 255, 255, 0.08);
+  --color-content-bg: #f0f3f8;
+  --color-card-bg: #ffffff;
+  --color-card-border: #d5dce8;
+  --color-text-primary: #0d1f38;
+  --color-text-secondary: #4a5f7a;
+  --color-text-heading: #0d1f38;
+  --color-action: #2b70b6;
+  --color-action-hover: #2463a3;
+  --color-action-text: #ffffff;
+  --color-cta: #b92b30;
+  --color-cta-hover: #a02428;
+  --color-cta-text: #ffffff;
+  --color-link: #2b70b6;
+  --color-tab-active-bg: rgba(43, 112, 182, 0.12);
+  --color-tab-active-text: #2b70b6;
+  --color-tab-border: #cdd5e0;
+  --color-divider: #cdd5e0;
+  --color-icon-bg: #e4eaf2;
+  --color-icon-stroke: #2b70b6;
+  --color-input-bg: #ffffff;
+  --color-input-border: #cdd5e0;
+  --color-input-text: #0d1f38;
+  --color-input-placeholder: #7a8fa8;
+  --color-group-header-bg: #e4eaf2;
+  --color-group-header-text: #0d1f38;
+  --color-early-bird-row: rgba(43, 112, 182, 0.05);
+  --color-badge-success-bg: #a3ceb6;
+  --color-badge-success-text: #0d1f38;
+  --color-badge-warning-bg: #f9e7a4;
+  --color-badge-warning-text: #0d1f38;
+  --color-badge-critical-bg: #f7aaae;
+  --color-badge-critical-text: #0d1f38;
+  --color-badge-waiting-bg: #fbc7a2;
+  --color-badge-waiting-text: #0d1f38;
+  --color-map-bg: #e4eaf2;
+  --color-sponsor-bg: #e4eaf2;
+  --color-avatar-bg: #2b70b6;
+  --color-status-dot: #2b70b6;
+  --color-gold: #b59960;
+}
+
+/* ===== MOCKUP C: Bold Black ===== */
+[data-theme="bold"] {
+  --color-page-bg: #0a1628;
+  --color-topbar-bg: #000000;
+  --color-topbar-text: #f6f6f6;
+  --color-topbar-text-sub: #8899b0;
+  --color-topbar-border: #1a2a42;
+  --color-header-bg: #000000;
+  --color-header-border: #1a2a42;
+  --color-header-text: #f6f6f6;
+  --color-header-text-sub: #999999;
+  --color-header-nav-active-bg: rgba(185, 43, 48, 0.2);
+  --color-header-nav-active-text: #e85358;
+  --color-header-nav-hover: rgba(255, 255, 255, 0.06);
+  --color-content-bg: #0a1628;
+  --color-card-bg: #0f2440;
+  --color-card-border: #1a3456;
+  --color-text-primary: #e0e8f0;
+  --color-text-secondary: #7a8fa8;
+  --color-text-heading: #ffffff;
+  --color-action: #b92b30;
+  --color-action-hover: #a02428;
+  --color-action-text: #ffffff;
+  --color-cta: #b92b30;
+  --color-cta-hover: #a02428;
+  --color-cta-text: #ffffff;
+  --color-link: #e85358;
+  --color-tab-active-bg: rgba(185, 43, 48, 0.2);
+  --color-tab-active-text: #e85358;
+  --color-tab-border: #1a3456;
+  --color-divider: #1a3456;
+  --color-icon-bg: #1a2a42;
+  --color-icon-stroke: #e85358;
+  --color-input-bg: #0f2440;
+  --color-input-border: #1a3456;
+  --color-input-text: #f6f6f6;
+  --color-input-placeholder: #5a7090;
+  --color-group-header-bg: #1a2a42;
+  --color-group-header-text: #f6f6f6;
+  --color-early-bird-row: rgba(185, 43, 48, 0.06);
+  --color-badge-success-bg: #1a5c38;
+  --color-badge-success-text: #a3ceb6;
+  --color-badge-warning-bg: #5c4a1a;
+  --color-badge-warning-text: #f9e7a4;
+  --color-badge-critical-bg: #5c1a1e;
+  --color-badge-critical-text: #f7aaae;
+  --color-badge-waiting-bg: #5c3a1a;
+  --color-badge-waiting-text: #fbc7a2;
+  --color-map-bg: #1a2a42;
+  --color-sponsor-bg: #1a2a42;
+  --color-avatar-bg: #b92b30;
+  --color-status-dot: #e85358;
+  --color-gold: #b59960;
+}
+
+body {
+  margin: 0;
+  font-family: 'Cera Pro', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: var(--color-text-primary);
+  background-color: var(--color-page-bg);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+button {
+  all: unset;
+  cursor: pointer;
+  box-sizing: border-box;
+}
