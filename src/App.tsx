@@ -7,6 +7,7 @@ import TopBar from './components/TopBar';
 import EventHeader from './components/EventHeader';
 import EventBanner from './components/EventBanner';
 import TabNavigation from './components/TabNavigation';
+import FloatingToolbar from './components/FloatingToolbar';
 import DetailsPage from './pages/DetailsPage';
 import DivisionsPage from './pages/DivisionsPage';
 import ThemePlayground from './pages/ThemePlayground';
@@ -177,6 +178,7 @@ function AppContent() {
           <Route path="/sponsors" element={<DetailsPage />} />
         </Routes>
       </div>
+      <FloatingToolbar />
     </div>
   );
 }
