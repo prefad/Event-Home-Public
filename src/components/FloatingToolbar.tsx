@@ -22,10 +22,10 @@ export default function FloatingToolbar() {
   }, [showColorPopup]);
 
   return (
-    <div ref={toolbarRef} className="fixed bottom-6 right-6 z-50">
+    <div ref={toolbarRef} className="fixed bottom-6 left-6 z-50">
       {/* Color popup - positioned above the toolbar */}
       {showColorPopup && (
-        <div className="absolute bottom-full right-0 mb-3">
+        <div className="absolute bottom-full left-0 mb-3">
           <BrandColorPopup onClose={() => setShowColorPopup(false)} />
         </div>
       )}

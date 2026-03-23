@@ -196,8 +196,18 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-button {
-  all: unset;
-  cursor: pointer;
-  box-sizing: border-box;
+@layer base {
+  button {
+    all: unset;
+    cursor: pointer;
+    box-sizing: border-box;
+  }
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }
