@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, type ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 
 export type ThemeName = 'dark' | 'light' | 'bold';
 
@@ -10,17 +10,21 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType>({ theme: 'dark', setTheme: () => {} });
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<ThemeName>('dark');
+  const [theme, setTheme] = useState<ThemeName>(() => {
+    const saved = localStorage.getItem('theme') as ThemeName | null;
+    return saved && ['dark', 'light', 'bold'].includes(saved) ? saved : 'dark';
+  });
 
   const handleSetTheme = (t: ThemeName) => {
     setTheme(t);
+    localStorage.setItem('theme', t);
     document.documentElement.setAttribute('data-theme', t);
   };
 
-  // Set initial theme attribute
-  if (!document.documentElement.getAttribute('data-theme')) {
+  // Always sync the data-theme attribute with state on mount
+  useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
-  }
+  }, [theme]);
 
   return (
     <ThemeContext.Provider value={{ theme, setTheme: handleSetTheme }}>

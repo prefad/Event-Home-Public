@@ -7,6 +7,11 @@ export default {
   theme: {
     extend: {
       colors: {
+        'brand': {
+          DEFAULT: '#0731FA',
+          light: '#e8ecfe',
+          hover: '#0528d4',
+        },
         'action-primary': {
           DEFAULT: '#0731fa',
           hover: '#0528d4',
