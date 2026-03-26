@@ -139,13 +139,22 @@ function DatePickerDropdown({ checkIn, checkOut, onSelect, onClose }: DatePicker
           onClick={() => handleDayClick(date)}
           className={`w-8 h-8 rounded-full text-xs flex items-center justify-center transition-all relative ${
             isPast
-              ? "text-gray-300 cursor-not-allowed"
+              ? "cursor-not-allowed"
               : isCheckIn || isCheckOut
               ? "bg-brand text-white"
               : inRange
               ? "bg-brand-light text-brand"
-              : "text-gray-700 hover:bg-gray-100"
+              : ""
           }`}
+          style={
+            isPast
+              ? { color: 'var(--color-text-secondary)', opacity: 0.5 }
+              : !(isCheckIn || isCheckOut) && !inRange
+              ? { color: 'var(--color-text-primary)' }
+              : undefined
+          }
+          onMouseEnter={(e) => { if (!isPast && !(isCheckIn || isCheckOut) && !inRange) e.currentTarget.style.backgroundColor = 'var(--color-hover-bg)'; }}
+          onMouseLeave={(e) => { if (!isPast && !(isCheckIn || isCheckOut) && !inRange) e.currentTarget.style.backgroundColor = ''; }}
         >
           {d}
         </button>
@@ -159,28 +168,28 @@ function DatePickerDropdown({ checkIn, checkOut, onSelect, onClose }: DatePicker
       initial={{ opacity: 0, y: -4 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -4 }}
-      className="absolute top-full mt-2 left-0 sm:left-0 right-0 sm:right-auto bg-white rounded-xl shadow-2xl border border-gray-100 p-4 z-40 max-h-[80vh] overflow-y-auto"
-      style={{ minWidth: "min(580px, calc(100vw - 32px))" }}
+      className="absolute top-full mt-2 left-0 sm:left-0 right-0 sm:right-auto rounded-xl shadow-2xl border p-4 z-40 max-h-[80vh] overflow-y-auto"
+      style={{ minWidth: "min(580px, calc(100vw - 32px))", backgroundColor: 'var(--color-card-bg)', borderColor: 'var(--color-divider)' }}
     >
       <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
         {[month1, month2].map((m, idx) => (
           <div key={idx} className="w-full sm:w-[260px]">
             <div className="flex items-center justify-between mb-3">
               {idx === 0 ? (
-                <button onClick={() => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1))} className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-gray-100">
-                  <ChevronLeft className="w-4 h-4 text-gray-500" />
+                <button onClick={() => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1))} className="w-7 h-7 flex items-center justify-center rounded-full" onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--color-hover-bg)'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = ''}>
+                  <ChevronLeft className="w-4 h-4" style={{ color: 'var(--color-text-secondary)' }} />
                 </button>
               ) : <div className="w-7" />}
-              <span className="text-sm text-gray-900">{MONTHS[m.month]} {m.year}</span>
+              <span className="text-sm" style={{ color: 'var(--color-text-heading)' }}>{MONTHS[m.month]} {m.year}</span>
               {idx === 1 ? (
-                <button onClick={() => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1))} className="w-7 h-7 flex items-center justify-center rounded-full hover:bg-gray-100">
-                  <ChevronRight className="w-4 h-4 text-gray-500" />
+                <button onClick={() => setViewDate(new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1))} className="w-7 h-7 flex items-center justify-center rounded-full" onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--color-hover-bg)'} onMouseLeave={(e) => e.currentTarget.style.backgroundColor = ''}>
+                  <ChevronRight className="w-4 h-4" style={{ color: 'var(--color-text-secondary)' }} />
                 </button>
               ) : <div className="w-7" />}
             </div>
             <div className="grid grid-cols-7 gap-0.5 mb-1">
               {DAYS.map((day) => (
-                <div key={day} className="w-8 h-6 flex items-center justify-center text-[10px] text-gray-400">{day}</div>
+                <div key={day} className="w-8 h-6 flex items-center justify-center text-[10px]" style={{ color: 'var(--color-input-placeholder)' }}>{day}</div>
               ))}
             </div>
             <div className="grid grid-cols-7 gap-0.5">
@@ -189,8 +198,8 @@ function DatePickerDropdown({ checkIn, checkOut, onSelect, onClose }: DatePicker
           </div>
         ))}
       </div>
-      <div className="flex items-center justify-between mt-4 pt-3 border-t border-gray-100">
-        <div className="text-xs text-gray-500">
+      <div className="flex items-center justify-between mt-4 pt-3 border-t" style={{ borderColor: 'var(--color-divider)' }}>
+        <div className="text-xs" style={{ color: 'var(--color-text-secondary)' }}>
           {checkIn && checkOut
             ? `${formatDateFull(checkIn)} → ${formatDateFull(checkOut)}`
             : checkIn
@@ -198,7 +207,7 @@ function DatePickerDropdown({ checkIn, checkOut, onSelect, onClose }: DatePicker
             : "Select check-in date"}
         </div>
         <div className="flex gap-2">
-          <button onClick={() => { onSelect(null, null); setSelecting("checkin"); }} className="px-3 py-1.5 text-xs text-gray-500 hover:text-gray-700">Clear</button>
+          <button onClick={() => { onSelect(null, null); setSelecting("checkin"); }} className="px-3 py-1.5 text-xs" style={{ color: 'var(--color-text-secondary)' }} onMouseEnter={(e) => e.currentTarget.style.color = 'var(--color-text-primary)'} onMouseLeave={(e) => e.currentTarget.style.color = 'var(--color-text-secondary)'}>Clear</button>
           <button onClick={onClose} className="px-3 py-1.5 text-xs bg-brand text-white rounded-[6px] hover:bg-brand-hover transition-colors">Done</button>
         </div>
       </div>
@@ -226,25 +235,28 @@ function GuestsDropdown({ rooms, adults, children, onUpdate, onClose }: GuestsDr
       initial={{ opacity: 0, y: -4 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -4 }}
-      className="absolute top-full mt-2 left-0 bg-white rounded-xl shadow-2xl border border-gray-100 p-4 z-40 w-[260px]"
+      className="absolute top-full mt-2 left-0 rounded-xl shadow-2xl border p-4 z-40 w-[260px]"
+      style={{ backgroundColor: 'var(--color-card-bg)', borderColor: 'var(--color-divider)' }}
     >
       <div className="space-y-4">
         {items.map((item) => (
           <div key={item.label} className="flex items-center justify-between">
-            <span className="text-sm text-gray-700">{item.label}</span>
+            <span className="text-sm" style={{ color: 'var(--color-text-primary)' }}>{item.label}</span>
             <div className="flex items-center gap-3">
               <button
                 onClick={() => item.onChange(Math.max(item.min, item.value - 1))}
                 disabled={item.value <= item.min}
-                className="w-7 h-7 flex items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:border-gray-400 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                className="w-7 h-7 flex items-center justify-center rounded-full border disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                style={{ borderColor: 'var(--color-input-border)', color: 'var(--color-text-secondary)' }}
               >
                 <Minus className="w-3 h-3" />
               </button>
-              <span className="text-sm text-gray-900 w-4 text-center">{item.value}</span>
+              <span className="text-sm w-4 text-center" style={{ color: 'var(--color-text-heading)' }}>{item.value}</span>
               <button
                 onClick={() => item.onChange(Math.min(item.max, item.value + 1))}
                 disabled={item.value >= item.max}
-                className="w-7 h-7 flex items-center justify-center rounded-full border border-gray-200 text-gray-500 hover:border-gray-400 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                className="w-7 h-7 flex items-center justify-center rounded-full border disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                style={{ borderColor: 'var(--color-input-border)', color: 'var(--color-text-secondary)' }}
               >
                 <Plus className="w-3 h-3" />
               </button>
@@ -292,34 +304,37 @@ export function FilterBar({
   return (
     <div className="space-y-3">
       {/* Kayak-style search bar */}
-      <div className="flex flex-col sm:flex-row items-stretch bg-gray-50 border border-gray-200 rounded-xl">
+      <div className="flex flex-col sm:flex-row items-stretch rounded-xl border" style={{ backgroundColor: 'var(--color-input-bg)', borderColor: 'var(--color-input-border)' }}>
         {/* Hotel search */}
-        <div className="flex-1 flex items-center gap-2 px-3 py-2.5 border-b sm:border-b-0 sm:border-r border-gray-200 min-w-0">
-          <Search className="w-4 h-4 text-gray-400 shrink-0" />
+        <div className="flex-1 flex items-center gap-2 px-3 py-2.5 border-b sm:border-b-0 sm:border-r min-w-0" style={{ borderColor: 'var(--color-input-border)' }}>
+          <Search className="w-4 h-4 shrink-0" style={{ color: 'var(--color-input-placeholder)' }} />
           <input
             type="text"
             placeholder="Search hotels by name..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             className="flex-1 bg-transparent text-sm placeholder:text-gray-400 focus:outline-none min-w-0"
+            style={{ color: 'var(--color-input-text)' }}
           />
         </div>
 
         {/* Dates + Guests row — side by side on mobile */}
         <div className="flex items-stretch border-b sm:border-b-0 sm:contents">
           {/* Dates */}
-          <div className="relative flex-1 flex items-center border-r border-gray-200">
+          <div className="relative flex-1 flex items-center border-r" style={{ borderColor: 'var(--color-input-border)' }}>
             <button
               onClick={() => { setShowDatePicker(!showDatePicker); setShowGuests(false); }}
-              className="w-full sm:w-auto flex items-center gap-2 px-3 py-2.5 hover:bg-gray-100 transition-colors text-left"
+              className="w-full sm:w-auto flex items-center gap-2 px-3 py-2.5 transition-colors text-left"
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--color-hover-bg)'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = ''}
             >
-              <Calendar className="w-4 h-4 text-gray-400 shrink-0" />
+              <Calendar className="w-4 h-4 shrink-0" style={{ color: 'var(--color-input-placeholder)' }} />
               <div className="flex items-center gap-1.5">
-                <span className="text-sm text-gray-900 whitespace-nowrap">
+                <span className="text-sm whitespace-nowrap" style={{ color: 'var(--color-text-heading)' }}>
                   {checkIn ? formatDate(checkIn) : "Check-in"}
                 </span>
-                <span className="text-gray-300">–</span>
-                <span className="text-sm text-gray-900 whitespace-nowrap">
+                <span style={{ color: 'var(--color-text-secondary)' }}>–</span>
+                <span className="text-sm whitespace-nowrap" style={{ color: 'var(--color-text-heading)' }}>
                   {checkOut ? formatDate(checkOut) : "Check-out"}
                 </span>
               </div>
@@ -343,11 +358,13 @@ export function FilterBar({
           <div className="relative flex-1 flex items-center">
             <button
               onClick={() => { setShowGuests(!showGuests); setShowDatePicker(false); }}
-              className="w-full sm:w-auto flex items-center gap-2 px-3 py-2.5 hover:bg-gray-100 transition-colors text-left"
+              className="w-full sm:w-auto flex items-center gap-2 px-3 py-2.5 transition-colors text-left"
+              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--color-hover-bg)'}
+              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = ''}
             >
-              <Users className="w-4 h-4 text-gray-400 shrink-0" />
-              <span className="text-sm text-gray-900 whitespace-nowrap">{guestSummary}</span>
-              <ChevronDown className={`w-3 h-3 text-gray-400 transition-transform ${showGuests ? "rotate-180" : ""}`} />
+              <Users className="w-4 h-4 shrink-0" style={{ color: 'var(--color-input-placeholder)' }} />
+              <span className="text-sm whitespace-nowrap" style={{ color: 'var(--color-text-heading)' }}>{guestSummary}</span>
+              <ChevronDown className={`w-3 h-3 transition-transform ${showGuests ? "rotate-180" : ""}`} style={{ color: 'var(--color-input-placeholder)' }} />
             </button>
             <AnimatePresence>
               {showGuests && (
@@ -378,11 +395,12 @@ export function FilterBar({
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs border transition-colors whitespace-nowrap cursor-pointer ${
                 priceRange[0] > 100 || priceRange[1] < 500
                   ? "bg-brand-light text-brand border-brand/20"
-                  : "bg-white border-gray-200 text-gray-600 hover:border-brand"
+                  : "hover:border-brand"
               }`}
+              style={priceRange[0] <= 100 && priceRange[1] >= 500 ? { backgroundColor: 'var(--color-chip-bg)', borderColor: 'var(--color-chip-border)', color: 'var(--color-chip-text)' } : undefined}
             >
               ${priceRange[0]} - ${priceRange[1]}
-              <ChevronDown className={`w-3 h-3 text-gray-400 transition-transform ${showPrice ? "rotate-180" : ""}`} />
+              <ChevronDown className={`w-3 h-3 transition-transform ${showPrice ? "rotate-180" : ""}`} style={{ color: 'var(--color-input-placeholder)' }} />
             </button>
             <AnimatePresence>
               {showPrice && (
@@ -392,27 +410,30 @@ export function FilterBar({
                     initial={{ opacity: 0, y: -4 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -4 }}
-                    className="absolute top-full mt-1 left-0 bg-white rounded-xl shadow-xl border border-gray-100 p-4 z-40 min-w-[240px]"
+                    className="absolute top-full mt-1 left-0 rounded-xl shadow-xl border p-4 z-40 min-w-[240px]"
+                    style={{ backgroundColor: 'var(--color-card-bg)', borderColor: 'var(--color-divider)' }}
                   >
-                    <p className="text-xs text-gray-600 mb-3 font-medium">Price per night</p>
+                    <p className="text-xs mb-3 font-medium" style={{ color: 'var(--color-text-primary)' }}>Price per night</p>
                     <div className="flex items-center gap-3 mb-3">
                       <div className="flex-1">
-                        <label className="text-[10px] text-gray-400 uppercase">Min</label>
+                        <label className="text-[10px] uppercase" style={{ color: 'var(--color-input-placeholder)' }}>Min</label>
                         <input
                           type="number"
                           value={priceRange[0]}
                           onChange={(e) => onPriceRangeChange([parseInt(e.target.value) || 0, priceRange[1]])}
-                          className="w-full mt-0.5 px-2 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-brand"
+                          className="w-full mt-0.5 px-2 py-1.5 border rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-brand"
+                          style={{ borderColor: 'var(--color-input-border)', color: 'var(--color-text-heading)', backgroundColor: 'var(--color-card-bg)' }}
                         />
                       </div>
-                      <span className="text-gray-300 mt-4">-</span>
+                      <span className="mt-4" style={{ color: 'var(--color-text-secondary)' }}>-</span>
                       <div className="flex-1">
-                        <label className="text-[10px] text-gray-400 uppercase">Max</label>
+                        <label className="text-[10px] uppercase" style={{ color: 'var(--color-input-placeholder)' }}>Max</label>
                         <input
                           type="number"
                           value={priceRange[1]}
                           onChange={(e) => onPriceRangeChange([priceRange[0], parseInt(e.target.value) || 500])}
-                          className="w-full mt-0.5 px-2 py-1.5 border border-gray-200 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-brand"
+                          className="w-full mt-0.5 px-2 py-1.5 border rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-brand"
+                          style={{ borderColor: 'var(--color-input-border)', color: 'var(--color-text-heading)', backgroundColor: 'var(--color-card-bg)' }}
                         />
                       </div>
                     </div>
@@ -441,8 +462,9 @@ export function FilterBar({
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs border transition-all whitespace-nowrap shrink-0 cursor-pointer ${
                   isActive
                     ? "bg-brand text-white border-brand"
-                    : "bg-white border-gray-200 text-gray-600 hover:border-brand"
+                    : "hover:border-brand"
                 }`}
+                style={!isActive ? { backgroundColor: 'var(--color-chip-bg)', borderColor: 'var(--color-chip-border)', color: 'var(--color-chip-text)' } : undefined}
               >
                 <Icon className="w-3 h-3" />
                 {f.label}
@@ -457,12 +479,13 @@ export function FilterBar({
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs border transition-colors whitespace-nowrap cursor-pointer ${
                 maxDistance !== null
                   ? "bg-brand-light text-brand border-brand/20"
-                  : "bg-white border-gray-200 text-gray-600 hover:border-brand"
+                  : "hover:border-brand"
               }`}
+              style={maxDistance === null ? { backgroundColor: 'var(--color-chip-bg)', borderColor: 'var(--color-chip-border)', color: 'var(--color-chip-text)' } : undefined}
             >
               <MapPin className="w-3 h-3" />
               {maxDistance !== null ? `Within ${maxDistance} km` : "Distance"}
-              <ChevronDown className={`w-3 h-3 text-gray-400 transition-transform ${showDistance ? "rotate-180" : ""}`} />
+              <ChevronDown className={`w-3 h-3 transition-transform ${showDistance ? "rotate-180" : ""}`} style={{ color: 'var(--color-input-placeholder)' }} />
             </button>
             <AnimatePresence>
               {showDistance && (
@@ -472,9 +495,10 @@ export function FilterBar({
                     initial={{ opacity: 0, y: -4 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -4 }}
-                    className="absolute top-full mt-1 left-0 bg-white rounded-xl shadow-xl border border-gray-100 py-1 z-40 min-w-[200px]"
+                    className="absolute top-full mt-1 left-0 rounded-xl shadow-xl border py-1 z-40 min-w-[200px]"
+                    style={{ backgroundColor: 'var(--color-card-bg)', borderColor: 'var(--color-divider)' }}
                   >
-                    <p className="px-3 pt-2 pb-1.5 text-[10px] text-gray-400 uppercase">Max distance to venue</p>
+                    <p className="px-3 pt-2 pb-1.5 text-[10px] uppercase" style={{ color: 'var(--color-input-placeholder)' }}>Max distance to venue</p>
                     {[
                       { value: null, label: "Any distance" },
                       { value: 1, label: "Within 1 km" },
@@ -489,9 +513,12 @@ export function FilterBar({
                           onMaxDistanceChange(opt.value);
                           setShowDistance(false);
                         }}
-                        className={`w-full text-left px-3 py-2 text-xs hover:bg-gray-50 transition-colors ${
-                          maxDistance === opt.value ? "text-brand bg-brand-light/50" : "text-gray-700"
+                        className={`w-full text-left px-3 py-2 text-xs transition-colors ${
+                          maxDistance === opt.value ? "text-brand bg-brand-light/50" : ""
                         }`}
+                        style={maxDistance !== opt.value ? { color: 'var(--color-text-primary)' } : undefined}
+                        onMouseEnter={(e) => { if (maxDistance !== opt.value) e.currentTarget.style.backgroundColor = 'var(--color-hover-bg)'; }}
+                        onMouseLeave={(e) => { if (maxDistance !== opt.value) e.currentTarget.style.backgroundColor = ''; }}
                       >
                         {opt.label}
                       </button>
@@ -506,7 +533,8 @@ export function FilterBar({
           {hasFilters && (
             <button
               onClick={onClearFilters}
-              className="flex items-center gap-1 px-2 py-1.5 text-xs text-gray-500 hover:text-red-500 transition-colors whitespace-nowrap shrink-0"
+              className="flex items-center gap-1 px-2 py-1.5 text-xs hover:text-red-500 transition-colors whitespace-nowrap shrink-0"
+              style={{ color: 'var(--color-text-secondary)' }}
             >
               <X className="w-3 h-3" />
               Clear all
@@ -518,10 +546,11 @@ export function FilterBar({
         {viewMode && onViewModeToggle && (
           <div className="md:hidden shrink-0 flex items-center pl-2 ml-0 relative">
             {/* Divider */}
-            <div className="w-px h-5 bg-gray-200 mr-2" />
+            <div className="w-px h-5 mr-2" style={{ backgroundColor: 'var(--color-divider)' }} />
             <button
               onClick={onViewModeToggle}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-[6px] text-xs bg-gray-900 text-white hover:bg-gray-800 transition-colors whitespace-nowrap"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-[6px] text-xs transition-colors whitespace-nowrap"
+              style={{ backgroundColor: 'var(--color-text-heading)', color: 'var(--color-card-bg)' }}
             >
               {viewMode === "list" ? (
                 <>

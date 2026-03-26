@@ -15,7 +15,7 @@ export default function EventHeader() {
   const location = useLocation();
 
   return (
-    <div style={{ backgroundColor: 'var(--color-header-bg)', borderBottom: '1px solid var(--color-header-border)' }}>
+    <div style={{ backgroundColor: 'var(--color-header-bg)' }}>
       {/* Event Info Row */}
       <div className="px-12 py-4 flex items-center justify-between">
         <div className="flex items-center gap-3">

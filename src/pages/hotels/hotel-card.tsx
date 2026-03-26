@@ -68,12 +68,16 @@ export function HotelCard({
       onMouseEnter={onHover}
       onMouseLeave={onLeave}
       onClick={onClick}
-      className={`group relative bg-white rounded-[10px] cursor-pointer transition-all duration-200 ${
+      style={{
+        backgroundColor: 'var(--color-card-bg)',
+        ...((!isActive && !hotel.isHostHotel) ? { borderColor: 'var(--color-card-border)' } : {}),
+      }}
+      className={`group relative rounded-[10px] cursor-pointer transition-all duration-200 ${
         isActive
           ? "ring-2 ring-brand shadow-lg shadow-brand/10"
           : hotel.isHostHotel
           ? "ring-2 ring-purple-500"
-          : "border border-gray-200 hover:shadow-lg hover:border-gray-300"
+          : "border hover:shadow-lg hover:border-gray-300"
       }`}
     >
       {/* Host Hotel Bar */}
@@ -98,12 +102,14 @@ export function HotelCard({
               e.stopPropagation();
               setLiked(!liked);
             }}
-            className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center rounded-full bg-white/80 backdrop-blur-sm hover:bg-white transition-colors"
+            style={{ backgroundColor: 'var(--color-card-bg)', opacity: 0.8 }}
+            className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center rounded-full backdrop-blur-sm hover:opacity-100 transition-colors"
           >
             <Heart
               className={`w-3.5 h-3.5 transition-colors ${
-                liked ? "fill-red-500 text-red-500" : "text-gray-600"
+                liked ? "fill-red-500 text-red-500" : ""
               }`}
+              {...(!liked ? { style: { color: 'var(--color-text-primary)' } } : {})}
             />
           </button>
         </div>
@@ -111,10 +117,10 @@ export function HotelCard({
         {/* Content — middle section */}
         <div className="flex-1 min-w-0 flex flex-col justify-between overflow-hidden">
           <div>
-            <h3 className="text-[15px] text-gray-900 truncate pr-1">
+            <h3 className="text-[15px] truncate pr-1" style={{ color: 'var(--color-text-heading)' }}>
               {hotel.name}
             </h3>
-            <p className="text-xs text-gray-500 mt-0.5">{hotel.location}</p>
+            <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>{hotel.location}</p>
             <div className="flex items-center gap-2 mt-1.5">
               <StarRating rating={hotel.hotelRating} />
               <div
@@ -123,8 +129,9 @@ export function HotelCard({
                     ? "bg-emerald-50 text-emerald-700"
                     : hotel.guestRating >= 8
                     ? "bg-blue-50 text-blue-700"
-                    : "bg-gray-100 text-gray-600"
+                    : ""
                 }`}
+                {...(hotel.guestRating < 8 ? { style: { backgroundColor: 'var(--color-icon-bg)', color: 'var(--color-text-secondary)' } } : {})}
               >
                 <span>{hotel.guestRating}</span>
               </div>
@@ -144,7 +151,8 @@ export function HotelCard({
                   return (
                     <div
                       key={a}
-                      className="w-5 h-5 flex items-center justify-center rounded bg-gray-50 text-gray-500"
+                      className="w-5 h-5 flex items-center justify-center rounded"
+                      style={{ backgroundColor: 'var(--color-icon-bg)', color: 'var(--color-text-secondary)' }}
                       title={config.label}
                     >
                       <Icon className="w-3 h-3" />
@@ -152,13 +160,13 @@ export function HotelCard({
                   );
                 })}
               </div>
-              <span className="text-gray-200">|</span>
-              <span className="flex items-center gap-0.5 text-[11px] text-gray-500">
+              <span style={{ color: 'var(--color-divider)' }}>|</span>
+              <span className="flex items-center gap-0.5 text-[11px]" style={{ color: 'var(--color-text-secondary)' }}>
                 <MapPin className="w-3 h-3 text-orange-500" />
                 {hotel.distance}
               </span>
-              <span className="flex items-center gap-0.5 text-[11px] text-gray-500">
-                <span className="text-gray-200 mr-1">|</span>
+              <span className="flex items-center gap-0.5 text-[11px]" style={{ color: 'var(--color-text-secondary)' }}>
+                <span className="mr-1" style={{ color: 'var(--color-divider)' }}>|</span>
                 <Car className="w-3 h-3" />
                 {hotel.driveTime}
               </span>
@@ -173,7 +181,7 @@ export function HotelCard({
         </div>
 
         {/* Price column — right side with divider */}
-        <div className="border-l border-gray-100 pl-3 shrink-0 flex flex-col items-end justify-end w-[110px]">
+        <div className="border-l pl-3 shrink-0 flex flex-col items-end justify-end w-[110px]" style={{ borderColor: 'var(--color-divider)' }}>
           <div className="text-right leading-tight">
             {hotel.badges.length > 0 && (
               <span
@@ -189,18 +197,18 @@ export function HotelCard({
               </span>
             )}
             {hotel.originalPrice && (
-              <span className="text-xs text-gray-400 line-through block">
+              <span className="text-xs line-through block" style={{ color: 'var(--color-text-secondary)' }}>
                 ${hotel.originalPrice}
               </span>
             )}
-            <span className="text-xl text-gray-900 font-medium">${hotel.price}</span>
-            <p className="text-[10px] text-gray-500 mb-3">Average rate</p>
+            <span className="text-xl font-medium" style={{ color: 'var(--color-text-heading)' }}>${hotel.price}</span>
+            <p className="text-[10px] mb-3" style={{ color: 'var(--color-text-secondary)' }}>Average rate</p>
           </div>
           <button
             onClick={(e) => {
               e.stopPropagation();
             }}
-            className="w-full px-3 py-2 rounded-[6px] text-xs transition-all bg-brand hover:bg-brand-hover text-white mb-0.5"
+            className="w-full px-3 py-2 rounded-[6px] text-xs text-center transition-all bg-brand hover:bg-brand-hover text-white mb-0.5"
           >
             View Hotel
           </button>
@@ -221,12 +229,14 @@ export function HotelCard({
               e.stopPropagation();
               setLiked(!liked);
             }}
-            className="absolute top-2.5 right-2.5 w-8 h-8 flex items-center justify-center rounded-full bg-white/80 backdrop-blur-sm hover:bg-white transition-colors"
+            style={{ backgroundColor: 'var(--color-card-bg)', opacity: 0.8 }}
+            className="absolute top-2.5 right-2.5 w-8 h-8 flex items-center justify-center rounded-full backdrop-blur-sm hover:opacity-100 transition-colors"
           >
             <Heart
               className={`w-4 h-4 transition-colors ${
-                liked ? "fill-red-500 text-red-500" : "text-gray-600"
+                liked ? "fill-red-500 text-red-500" : ""
               }`}
+              {...(!liked ? { style: { color: 'var(--color-text-primary)' } } : {})}
             />
           </button>
         </div>
@@ -235,10 +245,10 @@ export function HotelCard({
         <div className="p-3.5">
           <div className="flex items-start justify-between gap-2">
             <div className="min-w-0 flex-1">
-              <h3 className="text-base text-gray-900 truncate">
+              <h3 className="text-base truncate" style={{ color: 'var(--color-text-heading)' }}>
                 {hotel.name}
               </h3>
-              <p className="text-xs text-gray-500 mt-0.5">{hotel.location}</p>
+              <p className="text-xs mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>{hotel.location}</p>
             </div>
           </div>
 
@@ -251,8 +261,9 @@ export function HotelCard({
                   ? "bg-emerald-50 text-emerald-700"
                   : hotel.guestRating >= 8
                   ? "bg-blue-50 text-blue-700"
-                  : "bg-gray-100 text-gray-600"
+                  : ""
               }`}
+              {...(hotel.guestRating < 8 ? { style: { backgroundColor: 'var(--color-icon-bg)', color: 'var(--color-text-secondary)' } } : {})}
             >
               <span>{hotel.guestRating}</span>
             </div>
@@ -274,7 +285,8 @@ export function HotelCard({
                 return (
                   <div
                     key={a}
-                    className="w-6 h-6 flex items-center justify-center rounded bg-gray-50 text-gray-500"
+                    className="w-6 h-6 flex items-center justify-center rounded"
+                    style={{ backgroundColor: 'var(--color-icon-bg)', color: 'var(--color-text-secondary)' }}
                     title={config.label}
                   >
                     <Icon className="w-3.5 h-3.5" />
@@ -282,15 +294,15 @@ export function HotelCard({
                 );
               })}
             </div>
-            <span className="text-gray-200">|</span>
-            <span className="flex items-center gap-0.5 text-[11px] text-gray-500">
+            <span style={{ color: 'var(--color-divider)' }}>|</span>
+            <span className="flex items-center gap-0.5 text-[11px]" style={{ color: 'var(--color-text-secondary)' }}>
               <MapPin className="w-3 h-3 text-orange-500" />
               {hotel.distance}
             </span>
           </div>
 
           {/* Bottom row: price + CTA */}
-          <div className="flex items-end justify-between mt-3 pt-3 border-t border-gray-100">
+          <div className="flex items-end justify-between mt-3 pt-3 border-t" style={{ borderColor: 'var(--color-divider)' }}>
             <div>
               {hotel.badges.length > 0 && (
                 <span
@@ -306,18 +318,18 @@ export function HotelCard({
                 </span>
               )}
               {hotel.originalPrice && (
-                <span className="text-[10px] text-gray-400 line-through block">
+                <span className="text-[10px] line-through block" style={{ color: 'var(--color-text-secondary)' }}>
                   ${hotel.originalPrice}
                 </span>
               )}
-              <span className="text-xl text-gray-900 font-medium">${hotel.price}</span>
-              <p className="text-[10px] text-gray-500">Average rate</p>
+              <span className="text-xl font-medium" style={{ color: 'var(--color-text-heading)' }}>${hotel.price}</span>
+              <p className="text-[10px]" style={{ color: 'var(--color-text-secondary)' }}>Average rate</p>
             </div>
             <button
               onClick={(e) => {
                 e.stopPropagation();
               }}
-              className="px-5 py-2.5 rounded-[6px] text-xs transition-all bg-brand hover:bg-brand-hover text-white"
+              className="px-5 py-2.5 rounded-[6px] text-xs text-center transition-all bg-brand hover:bg-brand-hover text-white"
             >
               View Hotel
             </button>

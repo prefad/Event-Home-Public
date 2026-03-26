@@ -70,6 +70,20 @@
   --color-badge-waiting-bg: #5c3a1a;
   --color-badge-waiting-text: #fbc7a2;
   --color-map-bg: #1a2a42;
+  --color-map-water: rgba(91, 163, 224, 0.2);
+  --color-map-park: rgba(100, 180, 100, 0.2);
+  --color-map-road: #1a3456;
+  --color-map-road-minor: #122a44;
+  --color-chat-user-bg: #1a3456;
+  --color-chat-user-text: #e0e8f0;
+  --color-chat-assistant-bg: #0f2440;
+  --color-chat-assistant-border: #1a3456;
+  --color-chat-assistant-text: #c0d0e0;
+  --color-chat-area-bg: rgba(10, 22, 40, 0.5);
+  --color-hover-bg: rgba(255, 255, 255, 0.06);
+  --color-chip-bg: #112d52;
+  --color-chip-border: #2a4a6e;
+  --color-chip-text: #c0d0e0;
   --color-sponsor-bg: #1a2a42;
   --color-avatar-bg: #2b70b6;
   --color-status-dot: #5ba3e0;
@@ -78,7 +92,7 @@
 
 /* ===== MOCKUP B: Light Branded ===== */
 [data-theme="light"] {
-  --color-page-bg: #f0f3f8;
+  --color-page-bg: #ffffff;
   --color-topbar-bg: #05183e;
   --color-topbar-text: #f6f6f6;
   --color-topbar-text-sub: #8899b0;
@@ -90,7 +104,7 @@
   --color-header-nav-active-bg: rgba(91, 163, 224, 0.2);
   --color-header-nav-active-text: #5ba3e0;
   --color-header-nav-hover: rgba(255, 255, 255, 0.08);
-  --color-content-bg: #f0f3f8;
+  --color-content-bg: #ffffff;
   --color-card-bg: #ffffff;
   --color-card-border: #d5dce8;
   --color-text-primary: #0d1f38;
@@ -125,6 +139,20 @@
   --color-badge-waiting-bg: #fbc7a2;
   --color-badge-waiting-text: #0d1f38;
   --color-map-bg: #e4eaf2;
+  --color-map-water: rgba(135, 190, 220, 0.4);
+  --color-map-park: rgba(150, 210, 140, 0.4);
+  --color-map-road: #d4d4d4;
+  --color-map-road-minor: #e5e5e5;
+  --color-chat-user-bg: #0d1f38;
+  --color-chat-user-text: #ffffff;
+  --color-chat-assistant-bg: #ffffff;
+  --color-chat-assistant-border: #d5dce8;
+  --color-chat-assistant-text: #4a5f7a;
+  --color-chat-area-bg: rgba(240, 243, 248, 0.5);
+  --color-hover-bg: rgba(0, 0, 0, 0.04);
+  --color-chip-bg: #ffffff;
+  --color-chip-border: #d5dce8;
+  --color-chip-text: #4a5f7a;
   --color-sponsor-bg: #e4eaf2;
   --color-avatar-bg: #2b70b6;
   --color-status-dot: #2b70b6;
@@ -180,6 +208,20 @@
   --color-badge-waiting-bg: #5c3a1a;
   --color-badge-waiting-text: #fbc7a2;
   --color-map-bg: #1a2a42;
+  --color-map-water: rgba(232, 83, 88, 0.15);
+  --color-map-park: rgba(100, 180, 100, 0.15);
+  --color-map-road: #1a3456;
+  --color-map-road-minor: #122a44;
+  --color-chat-user-bg: #1a3456;
+  --color-chat-user-text: #e0e8f0;
+  --color-chat-assistant-bg: #0f2440;
+  --color-chat-assistant-border: #1a3456;
+  --color-chat-assistant-text: #c0d0e0;
+  --color-chat-area-bg: rgba(10, 22, 40, 0.5);
+  --color-hover-bg: rgba(255, 255, 255, 0.06);
+  --color-chip-bg: #112d52;
+  --color-chip-border: #2a4a6e;
+  --color-chip-text: #c0d0e0;
   --color-sponsor-bg: #1a2a42;
   --color-avatar-bg: #b92b30;
   --color-status-dot: #e85358;

@@ -149,23 +149,23 @@ function ChatHotelCard({ hotelId }: { hotelId: string }) {
   const hotel = hotelData.find((h) => h.id === hotelId);
   if (!hotel) return null;
   return (
-    <div className="flex items-center gap-2.5 p-2 bg-gray-50 rounded-[8px] border border-gray-100 hover:border-gray-200 hover:shadow-sm transition-all cursor-pointer group">
+    <div className="flex items-center gap-2.5 p-2 rounded-[8px] hover:shadow-sm transition-all cursor-pointer group" style={{ backgroundColor: 'var(--color-icon-bg)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--color-divider)' }}>
       <img
         src={hotel.image}
         alt={hotel.name}
         className="w-14 h-14 rounded-[6px] object-cover shrink-0"
       />
       <div className="flex-1 min-w-0">
-        <p className="text-[12px] text-gray-900 truncate">{hotel.name}</p>
+        <p className="text-[12px] truncate" style={{ color: 'var(--color-text-heading)' }}>{hotel.name}</p>
         <div className="flex items-center gap-1.5 mt-0.5">
           <StarRating rating={hotel.hotelRating} />
           <span className="text-[10px] text-green-600 bg-green-50 px-1 py-px rounded">{hotel.guestRating}</span>
         </div>
-        <p className="text-[10px] text-gray-400 mt-0.5">{hotel.distance} · {hotel.driveTime}</p>
+        <p className="text-[10px] mt-0.5" style={{ color: 'var(--color-text-secondary)' }}>{hotel.distance} · {hotel.driveTime}</p>
       </div>
       <div className="text-right shrink-0 pr-1">
-        <p className="text-[15px] text-gray-900">${hotel.price}</p>
-        <p className="text-[9px] text-gray-400">per night</p>
+        <p className="text-[15px]" style={{ color: 'var(--color-text-heading)' }}>${hotel.price}</p>
+        <p className="text-[9px]" style={{ color: 'var(--color-text-secondary)' }}>per night</p>
       </div>
     </div>
   );
@@ -260,15 +260,20 @@ export function AiChat({ variant = "default", overlayOpen, onOverlayChange }: { 
       <div
         className={`px-3.5 py-2.5 rounded-2xl text-[13px] leading-relaxed ${
           msg.role === "user"
-            ? "bg-black text-white rounded-br-sm"
-            : "bg-white border border-gray-100 text-gray-700 rounded-bl-sm shadow-sm"
+            ? "rounded-br-sm"
+            : "rounded-bl-sm shadow-sm"
         }`}
+        style={
+          msg.role === "user"
+            ? { backgroundColor: 'var(--color-chat-user-bg)', color: 'var(--color-chat-user-text)' }
+            : { backgroundColor: 'var(--color-chat-assistant-bg)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--color-chat-assistant-border)', color: 'var(--color-chat-assistant-text)' }
+        }
       >
         {msg.content.split("\n").map((line, i) => (
           <span key={i}>
             {line.split(/(\*\*.*?\*\*)/).map((part, j) =>
               part.startsWith("**") && part.endsWith("**") ? (
-                <strong key={j} className={msg.role === "user" ? "text-white" : "text-gray-900"}>
+                <strong key={j} style={{ color: msg.role === "user" ? 'var(--color-chat-user-text)' : 'var(--color-text-heading)' }}>
                   {part.slice(2, -2)}
                 </strong>
               ) : (
@@ -299,30 +304,31 @@ export function AiChat({ variant = "default", overlayOpen, onOverlayChange }: { 
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: "100%" }}
             transition={{ type: "spring", damping: 30, stiffness: 300 }}
-            className="fixed left-0 right-0 bottom-0 z-[60] bg-white flex flex-col"
-            style={{ top: "var(--header-height, 120px)" }}
+            className="fixed left-0 right-0 bottom-0 z-[60] flex flex-col"
+            style={{ top: "var(--header-height, 120px)", backgroundColor: 'var(--color-page-bg)' }}
           >
             {/* Overlay header - mobile */}
-            <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 shrink-0">
+            <div className="flex items-center justify-between px-4 py-3 border-b shrink-0" style={{ borderColor: 'var(--color-divider)' }}>
               <div className="flex items-center gap-2">
                 <div className="w-7 h-7 shrink-0 text-brand">
                   <Vector16 />
                 </div>
                 <div>
-                  <span className="text-sm text-gray-900">Booking Assistant</span>
+                  <span className="text-sm" style={{ color: 'var(--color-text-heading)' }}>Booking Assistant</span>
                   <span className="text-[9px] text-brand bg-brand-light px-1.5 py-0.5 rounded-full ml-2">AI</span>
                 </div>
               </div>
               <button
                 onClick={() => setIsOverlayOpen(false)}
-                className="w-8 h-8 flex items-center justify-center rounded-[6px] hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors"
+                className="w-8 h-8 flex items-center justify-center rounded-[6px] transition-colors"
+                style={{ color: 'var(--color-text-secondary)' }}
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Messages area */}
-            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 scrollbar-hide bg-gray-50/50">
+            <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 scrollbar-hide" style={{ backgroundColor: 'var(--color-page-bg)' }}>
               {allOverlayMessages.map((msg) => (
                 <div
                   key={msg.id}
@@ -342,10 +348,10 @@ export function AiChat({ variant = "default", overlayOpen, onOverlayChange }: { 
                   <div className="w-6 h-6 shrink-0 mr-2 mt-0.5 text-brand">
                     <Vector16 />
                   </div>
-                  <div className="bg-white border border-gray-100 px-3.5 py-2.5 rounded-2xl rounded-bl-sm shadow-sm flex items-center gap-1">
-                    <div className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce [animation-delay:0ms]" />
-                    <div className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce [animation-delay:150ms]" />
-                    <div className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce [animation-delay:300ms]" />
+                  <div className="px-3.5 py-2.5 rounded-2xl rounded-bl-sm shadow-sm flex items-center gap-1" style={{ backgroundColor: 'var(--color-chat-assistant-bg)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--color-chat-assistant-border)' }}>
+                    <div className="w-1.5 h-1.5 rounded-full animate-bounce [animation-delay:0ms]" style={{ backgroundColor: 'var(--color-text-secondary)' }} />
+                    <div className="w-1.5 h-1.5 rounded-full animate-bounce [animation-delay:150ms]" style={{ backgroundColor: 'var(--color-text-secondary)' }} />
+                    <div className="w-1.5 h-1.5 rounded-full animate-bounce [animation-delay:300ms]" style={{ backgroundColor: 'var(--color-text-secondary)' }} />
                   </div>
                 </div>
               )}
@@ -353,8 +359,8 @@ export function AiChat({ variant = "default", overlayOpen, onOverlayChange }: { 
             </div>
 
             {/* Overlay input bar */}
-            <div className="px-4 py-3 bg-white shrink-0 space-y-2.5">
-              <div className="flex items-center gap-2 bg-gray-100 rounded-full pl-3 pr-2.5 py-2 border border-gray-200 focus-within:border-gray-300 focus-within:bg-gray-50 transition-all">
+            <div className="px-4 py-3 shrink-0 space-y-2.5" style={{ backgroundColor: 'var(--color-page-bg)' }}>
+              <div className="flex items-center gap-2 rounded-full pl-3 pr-2.5 py-2 transition-all" style={{ backgroundColor: 'var(--color-input-bg)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--color-input-border)' }}>
                 <input
                   ref={overlayInputRef}
                   type="text"
@@ -362,7 +368,8 @@ export function AiChat({ variant = "default", overlayOpen, onOverlayChange }: { 
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  className="flex-1 bg-transparent text-sm text-gray-900 placeholder-gray-400 outline-none min-w-0"
+                  className="flex-1 bg-transparent text-sm placeholder-gray-400 outline-none min-w-0"
+                  style={{ color: 'var(--color-text-heading)' }}
                 />
                 {inputValue.trim() ? (
                   <button
@@ -392,30 +399,32 @@ export function AiChat({ variant = "default", overlayOpen, onOverlayChange }: { 
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
               transition={{ type: "spring", damping: 30, stiffness: 300 }}
-              className="flex-1 flex flex-col min-h-0 bg-white overflow-hidden"
+              className="flex-1 flex flex-col min-h-0 overflow-hidden"
+              style={{ backgroundColor: 'var(--color-page-bg)' }}
             >
               {/* Chat content card */}
-              <div className="border border-gray-200 rounded-[16px] flex flex-col flex-1 overflow-hidden mx-4 mt-1.5 mb-2 min-h-0">
-                <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 shrink-0">
+              <div className="border rounded-[16px] flex flex-col flex-1 overflow-hidden mx-4 mt-1.5 mb-2 min-h-0" style={{ borderColor: 'var(--color-divider)' }}>
+                <div className="flex items-center justify-between px-4 py-3 border-b shrink-0" style={{ borderColor: 'var(--color-divider)' }}>
                   <div className="flex items-center gap-2">
                     <div className="w-7 h-7 shrink-0 text-brand">
                       <Vector16 />
                     </div>
                     <div>
-                      <span className="text-sm text-gray-900">Booking Assistant</span>
+                      <span className="text-sm" style={{ color: 'var(--color-text-heading)' }}>Booking Assistant</span>
                       <span className="text-[9px] text-brand bg-brand-light px-1.5 py-0.5 rounded-full ml-2">AI</span>
                     </div>
                   </div>
                   <button
                     onClick={() => setIsOverlayOpen(false)}
-                    className="w-8 h-8 flex items-center justify-center rounded-[6px] hover:bg-gray-100 text-gray-500 hover:text-gray-700 transition-colors"
+                    className="w-8 h-8 flex items-center justify-center rounded-[6px] transition-colors"
+                    style={{ color: 'var(--color-text-secondary)' }}
                   >
                     <X className="w-5 h-5" />
                   </button>
                 </div>
 
                 {/* Messages area */}
-                <div className="flex-1 overflow-y-auto px-5 py-5 space-y-4 scrollbar-hide bg-gray-50/50">
+                <div className="flex-1 overflow-y-auto px-5 py-5 space-y-4 scrollbar-hide" style={{ backgroundColor: 'var(--color-page-bg)' }}>
                   {allOverlayMessages.map((msg) => (
                     <div
                       key={msg.id}
@@ -435,10 +444,10 @@ export function AiChat({ variant = "default", overlayOpen, onOverlayChange }: { 
                       <div className="w-6 h-6 shrink-0 mr-2 mt-0.5 text-brand">
                         <Vector16 />
                       </div>
-                      <div className="bg-white border border-gray-100 px-3.5 py-2.5 rounded-2xl rounded-bl-sm shadow-sm flex items-center gap-1">
-                        <div className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce [animation-delay:0ms]" />
-                        <div className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce [animation-delay:150ms]" />
-                        <div className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce [animation-delay:300ms]" />
+                      <div className="px-3.5 py-2.5 rounded-2xl rounded-bl-sm shadow-sm flex items-center gap-1" style={{ backgroundColor: 'var(--color-chat-assistant-bg)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--color-chat-assistant-border)' }}>
+                        <div className="w-1.5 h-1.5 rounded-full animate-bounce [animation-delay:0ms]" style={{ backgroundColor: 'var(--color-text-secondary)' }} />
+                        <div className="w-1.5 h-1.5 rounded-full animate-bounce [animation-delay:150ms]" style={{ backgroundColor: 'var(--color-text-secondary)' }} />
+                        <div className="w-1.5 h-1.5 rounded-full animate-bounce [animation-delay:300ms]" style={{ backgroundColor: 'var(--color-text-secondary)' }} />
                       </div>
                     </div>
                   )}
@@ -447,11 +456,12 @@ export function AiChat({ variant = "default", overlayOpen, onOverlayChange }: { 
               </div>
 
               {/* Overlay input bar */}
-              <div className="px-4 py-3 bg-white shrink-0 space-y-2.5">
-                <div className="flex items-center gap-2 bg-gray-100 rounded-full pl-2.5 pr-2.5 py-2 border border-gray-200 focus-within:border-gray-300 focus-within:bg-gray-50 transition-all">
+              <div className="px-4 py-3 shrink-0 space-y-2.5" style={{ backgroundColor: 'var(--color-page-bg)' }}>
+                <div className="flex items-center gap-2 rounded-full pl-2.5 pr-2.5 py-2 transition-all" style={{ backgroundColor: 'var(--color-input-bg)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--color-input-border)' }}>
                   <button
                     onClick={() => setIsOverlayOpen(false)}
-                    className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-200 text-gray-400 hover:text-gray-600 transition-colors shrink-0"
+                    className="w-8 h-8 flex items-center justify-center rounded-full transition-colors shrink-0"
+                    style={{ color: 'var(--color-text-secondary)' }}
                   >
                     <div className="w-4 h-[18px]">
                       <Vector />
@@ -464,7 +474,8 @@ export function AiChat({ variant = "default", overlayOpen, onOverlayChange }: { 
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    className="flex-1 bg-transparent text-sm text-gray-900 placeholder-gray-400 outline-none min-w-0"
+                    className="flex-1 bg-transparent text-sm placeholder-gray-400 outline-none min-w-0"
+                    style={{ color: 'var(--color-text-heading)' }}
                   />
                   {inputValue.trim() ? (
                     <button
@@ -487,11 +498,11 @@ export function AiChat({ variant = "default", overlayOpen, onOverlayChange }: { 
 
       {/* Bottom bar — hidden on desktop when overlay is open (overlay has its own input) */}
       {!(variant === "default" && isOverlayOpen) && (
-      <div className={`shrink-0 bg-white flex flex-col ${
+      <div className={`shrink-0 flex flex-col ${
         variant === "mobile-float"
           ? "fixed bottom-0 left-0 right-0 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] rounded-t-[12px] overflow-hidden"
           : "pt-2 pb-0"
-      }`}>
+      }`} style={{ backgroundColor: 'var(--color-page-bg)' }}>
         {/* Expanded chat panel */}
         <AnimatePresence>
           {isExpanded && (
@@ -504,12 +515,12 @@ export function AiChat({ variant = "default", overlayOpen, onOverlayChange }: { 
             >
               <div className="h-full flex flex-col">
                 {/* Chat header */}
-                <div className="flex items-center justify-between px-4 py-2 border-b border-gray-100">
+                <div className="flex items-center justify-between px-4 py-2 border-b" style={{ borderColor: 'var(--color-divider)' }}>
                   <div className="flex items-center gap-2">
                     <div className="w-6 h-6 shrink-0 text-brand">
                       <Vector16 />
                     </div>
-                    <span className="text-xs text-gray-700">
+                    <span className="text-xs" style={{ color: 'var(--color-text-primary)' }}>
                       Chat with Booking Assistant
                     </span>
                     <span className="text-[9px] text-brand bg-brand-light px-1.5 py-0.5 rounded-full">
@@ -518,20 +529,21 @@ export function AiChat({ variant = "default", overlayOpen, onOverlayChange }: { 
                   </div>
                   <button
                     onClick={() => setIsExpanded(false)}
-                    className="w-6 h-6 flex items-center justify-center rounded-[6px] hover:bg-gray-100 text-gray-400 hover:text-gray-600 transition-colors"
+                    className="w-6 h-6 flex items-center justify-center rounded-[6px] transition-colors"
+                    style={{ color: 'var(--color-text-secondary)' }}
                   >
                     <ChevronDown className="w-4 h-4" />
                   </button>
                 </div>
 
                 {/* Messages */}
-                <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 scrollbar-hide bg-gray-50/50">
+                <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 scrollbar-hide" style={{ backgroundColor: 'var(--color-page-bg)' }}>
                   {messages.length === 0 && (
                     <div className="flex flex-col items-center justify-center h-full gap-3 py-4">
                       <div className="w-10 h-10 shrink-0 text-brand">
                         <Vector16 />
                       </div>
-                      <p className="text-xs text-gray-400 text-center max-w-[260px]">
+                      <p className="text-xs text-center max-w-[260px]" style={{ color: 'var(--color-text-secondary)' }}>
                         Ask me anything about hotels, rates, or recommendations for your group.
                       </p>
                       <div className="flex flex-wrap gap-1.5 justify-center mt-1">
@@ -539,7 +551,8 @@ export function AiChat({ variant = "default", overlayOpen, onOverlayChange }: { 
                           <button
                             key={s.label}
                             onClick={() => handleSuggestion(s.label)}
-                            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full bg-white border border-gray-200 text-[11px] text-gray-500 hover:text-gray-700 hover:border-gray-300 transition-colors"
+                            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-[11px] transition-colors"
+                            style={{ backgroundColor: 'var(--color-chip-bg)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--color-chip-border)', color: 'var(--color-chip-text)' }}
                           >
                             <s.icon className="w-3 h-3" />
                             {s.label}
@@ -564,15 +577,20 @@ export function AiChat({ variant = "default", overlayOpen, onOverlayChange }: { 
                       <div
                         className={`max-w-[85%] px-3 py-2 rounded-2xl text-xs leading-relaxed ${
                           msg.role === "user"
-                            ? "bg-black text-white rounded-br-sm"
-                            : "bg-white border border-gray-100 text-gray-700 rounded-bl-sm shadow-sm"
+                            ? "rounded-br-sm"
+                            : "rounded-bl-sm shadow-sm"
                         }`}
+                        style={
+                          msg.role === "user"
+                            ? { backgroundColor: 'var(--color-chat-user-bg)', color: 'var(--color-chat-user-text)' }
+                            : { backgroundColor: 'var(--color-chat-assistant-bg)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--color-chat-assistant-border)', color: 'var(--color-chat-assistant-text)' }
+                        }
                       >
                         {msg.content.split("\n").map((line, i) => (
                           <span key={i}>
                             {line.split(/(\*\*.*?\*\*)/).map((part, j) =>
                               part.startsWith("**") && part.endsWith("**") ? (
-                                <strong key={j} className={msg.role === "user" ? "text-white" : "text-gray-900"}>
+                                <strong key={j} style={{ color: msg.role === "user" ? 'var(--color-chat-user-text)' : 'var(--color-text-heading)' }}>
                                   {part.slice(2, -2)}
                                 </strong>
                               ) : (
@@ -591,10 +609,10 @@ export function AiChat({ variant = "default", overlayOpen, onOverlayChange }: { 
                       <div className="w-5 h-5 shrink-0 mr-2 mt-0.5 text-brand">
                         <Vector16 />
                       </div>
-                      <div className="bg-white border border-gray-100 px-3 py-2.5 rounded-2xl rounded-bl-sm shadow-sm flex items-center gap-1">
-                        <div className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce [animation-delay:0ms]" />
-                        <div className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce [animation-delay:150ms]" />
-                        <div className="w-1.5 h-1.5 bg-gray-300 rounded-full animate-bounce [animation-delay:300ms]" />
+                      <div className="px-3 py-2.5 rounded-2xl rounded-bl-sm shadow-sm flex items-center gap-1" style={{ backgroundColor: 'var(--color-chat-assistant-bg)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--color-chat-assistant-border)' }}>
+                        <div className="w-1.5 h-1.5 rounded-full animate-bounce [animation-delay:0ms]" style={{ backgroundColor: 'var(--color-text-secondary)' }} />
+                        <div className="w-1.5 h-1.5 rounded-full animate-bounce [animation-delay:150ms]" style={{ backgroundColor: 'var(--color-text-secondary)' }} />
+                        <div className="w-1.5 h-1.5 rounded-full animate-bounce [animation-delay:300ms]" style={{ backgroundColor: 'var(--color-text-secondary)' }} />
                       </div>
                     </div>
                   )}
@@ -606,15 +624,16 @@ export function AiChat({ variant = "default", overlayOpen, onOverlayChange }: { 
         </AnimatePresence>
 
         {/* Input bar — always visible */}
-        <div className="px-3 sm:px-4 pt-2.5 pb-1 bg-white">
-          <div className="flex items-center gap-2 bg-gray-100 rounded-full pl-2.5 pr-2.5 py-2 border border-gray-200 focus-within:border-gray-300 focus-within:bg-gray-50 transition-all">
+        <div className="px-3 sm:px-4 pt-2.5 pb-1" style={{ backgroundColor: 'var(--color-page-bg)' }}>
+          <div className="flex items-center gap-2 rounded-full pl-2.5 pr-2.5 py-2 transition-all" style={{ backgroundColor: 'var(--color-input-bg)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--color-input-border)' }}>
             <button
               onClick={() => {
                 if (isOverlayOpen) {
                   setIsOverlayOpen(false);
                 }
               }}
-              className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-200 text-gray-400 hover:text-gray-600 transition-colors shrink-0"
+              className="w-8 h-8 flex items-center justify-center rounded-full transition-colors shrink-0"
+              style={{ color: 'var(--color-text-secondary)' }}
             >
               {isExpanded ? (
                 <X className="w-4 h-4" />
@@ -631,7 +650,8 @@ export function AiChat({ variant = "default", overlayOpen, onOverlayChange }: { 
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={handleKeyDown}
-              className="flex-1 bg-transparent text-sm text-gray-900 placeholder-gray-400 outline-none min-w-0"
+              className="flex-1 bg-transparent text-sm placeholder-gray-400 outline-none min-w-0"
+              style={{ color: 'var(--color-text-heading)' }}
             />
             {inputValue.trim() ? (
               <button
@@ -642,7 +662,7 @@ export function AiChat({ variant = "default", overlayOpen, onOverlayChange }: { 
               </button>
             ) : (
               <>
-                <button className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-200 text-gray-400 hover:text-gray-600 transition-colors shrink-0">
+                <button className="w-8 h-8 flex items-center justify-center rounded-full transition-colors shrink-0" style={{ color: 'var(--color-text-secondary)' }}>
                   <Mic className="w-4 h-4" />
                 </button>
                 <button

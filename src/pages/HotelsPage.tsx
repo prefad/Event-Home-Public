@@ -198,7 +198,7 @@ export default function HotelsPage() {
           border-style: solid;
         }
       `}</style>
-      <div className="hotels-page h-screen flex flex-col bg-gray-50 font-['Cera_Pro','Inter',sans-serif] overflow-hidden">
+      <div className="hotels-page h-screen flex flex-col font-['Cera_Pro','Inter',sans-serif] overflow-hidden" style={{ backgroundColor: 'var(--color-page-bg)' }}>
         <div ref={headerRef}>
           <TopBar />
           <EventHeader />
@@ -207,11 +207,11 @@ export default function HotelsPage() {
       {/* Main content */}
       <div className="hotels-feed flex-1 flex flex-col overflow-hidden min-h-0">
         {/* Toolbar */}
-        <div className="sticky top-[var(--header-height,120px)] z-20 md:static px-3 sm:px-5 pt-5 pb-2 bg-white border-b border-gray-100 md:border-b-0">
+        <div className="sticky top-[var(--header-height,120px)] z-20 md:static px-3 sm:px-5 pt-5 pb-2 border-b md:border-b-0" style={{ backgroundColor: 'var(--color-page-bg)', borderColor: 'var(--color-divider)' }}>
           {activeFilters.length > 0 && (
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-3">
-                <span className="text-[10px] text-gray-400 bg-gray-100 px-2 py-0.5 rounded-full">
+                <span className="text-[10px] px-2 py-0.5 rounded-full" style={{ color: 'var(--color-text-secondary)', backgroundColor: 'var(--color-icon-bg)' }}>
                   {activeFilters.length} filter{activeFilters.length > 1 ? "s" : ""} active
                 </span>
               </div>
@@ -236,7 +236,7 @@ export default function HotelsPage() {
         </div>
 
         {/* Content area */}
-        <div className="flex-1 flex md:overflow-hidden bg-white pr-0 md:pr-5 pb-0 md:pb-5 relative">
+        <div className="flex-1 flex md:overflow-hidden pr-0 md:pr-5 pb-0 md:pb-5 relative" style={{ backgroundColor: 'var(--color-page-bg)' }}>
           {/* Hotel list — on mobile: only in list mode; on desktop: always visible as sidebar */}
           <motion.div
             layout
@@ -247,10 +247,11 @@ export default function HotelsPage() {
             }`}
           >
             {/* Kayak-style sort/results bar */}
-            <div className="sticky top-0 z-10 bg-white px-4 pt-[calc(0.625rem+0.5rem)] pb-2.5 flex items-center justify-between">
+            <div className="sticky top-0 z-10 px-4 pt-[calc(0.625rem+0.5rem)] pb-2.5 flex items-center justify-between" style={{ backgroundColor: 'var(--color-page-bg)' }}>
               <button
                 onClick={() => setChatOverlayOpen(true)}
-                className="flex items-center gap-1.5 text-sm text-gray-700 hover:text-brand transition-colors cursor-pointer"
+                className="flex items-center gap-1.5 text-sm hover:text-brand transition-colors cursor-pointer"
+                style={{ color: 'var(--color-text-primary)' }}
               >
                 <div className="w-[15px] h-[17px] shrink-0">
                   <Vector />
@@ -260,20 +261,21 @@ export default function HotelsPage() {
                 <ArrowRight className="w-3.5 h-3.5 hidden sm:block" />
               </button>
               <div className="flex items-center gap-3">
-                <span className="text-sm text-gray-900">
+                <span className="text-sm" style={{ color: 'var(--color-text-heading)' }}>
                   {filteredHotels.length} results
                 </span>
-                <span className="text-gray-200">|</span>
+                <span style={{ color: 'var(--color-divider)' }}>|</span>
                 <div className="relative">
                   <button
                     onClick={() => setShowSort(!showSort)}
-                    className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 transition-colors"
+                    className="flex items-center gap-1.5 text-sm transition-colors"
+                    style={{ color: 'var(--color-text-secondary)' }}
                   >
                     <span className="hidden sm:inline">Sort by{" "}</span>
-                    <span className="text-gray-900">
+                    <span style={{ color: 'var(--color-text-heading)' }}>
                       {sortOptions.find((s) => s.value === sortBy)?.label}
                     </span>
-                    <ChevronDown className={`w-3.5 h-3.5 text-gray-900 transition-transform ${showSort ? "rotate-180" : ""}`} />
+                    <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showSort ? "rotate-180" : ""}`} style={{ color: 'var(--color-text-heading)' }} />
                   </button>
                   <AnimatePresence>
                     {showSort && (
@@ -283,7 +285,8 @@ export default function HotelsPage() {
                           initial={{ opacity: 0, y: -4 }}
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: -4 }}
-                          className="absolute top-full mt-1 right-0 bg-white rounded-xl shadow-xl border border-gray-100 py-1 z-40 min-w-[200px]"
+                          className="absolute top-full mt-1 right-0 rounded-xl shadow-xl border py-1 z-40 min-w-[200px]"
+                          style={{ backgroundColor: 'var(--color-card-bg)', borderColor: 'var(--color-divider)' }}
                         >
                           {sortOptions.map((opt) => (
                             <button
@@ -292,9 +295,13 @@ export default function HotelsPage() {
                                 setSortBy(opt.value);
                                 setShowSort(false);
                               }}
-                              className={`w-full text-left px-3 py-2 text-xs hover:bg-gray-50 transition-colors ${
-                                sortBy === opt.value ? "text-brand bg-brand-light/50" : "text-gray-700"
-                              }`}
+                              className="w-full text-left px-3 py-2 text-xs transition-colors"
+                              style={sortBy === opt.value
+                                ? { color: 'var(--color-action)', backgroundColor: 'var(--color-icon-bg)' }
+                                : { color: 'var(--color-text-primary)' }
+                              }
+                              onMouseEnter={(e) => { if (sortBy !== opt.value) (e.currentTarget.style.backgroundColor = 'var(--color-page-bg)'); }}
+                              onMouseLeave={(e) => { if (sortBy !== opt.value) (e.currentTarget.style.backgroundColor = ''); }}
                             >
                               {opt.label}
                             </button>
@@ -309,8 +316,8 @@ export default function HotelsPage() {
 
             <div className="p-4 flex flex-col gap-3">
               {filteredHotels.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-16 text-gray-400">
-                  <MapPin className="w-10 h-10 mb-3 text-gray-300" />
+                <div className="flex flex-col items-center justify-center py-16" style={{ color: 'var(--color-text-secondary)' }}>
+                  <MapPin className="w-10 h-10 mb-3" style={{ color: 'var(--color-divider)' }} />
                   <p className="text-sm">No hotels match your filters</p>
                   <button
                     onClick={handleClearFilters}
@@ -347,8 +354,8 @@ export default function HotelsPage() {
             {!chatOverlayOpen && (
             <div className="hidden md:flex items-center gap-2 px-4 pt-1 pb-2 shrink-0">
               <div className="flex items-center gap-1.5 mr-1">
-                <Sparkles className="w-3.5 h-3.5 text-gray-900" />
-                <span className="text-sm text-gray-900 whitespace-nowrap">Top finds</span>
+                <Sparkles className="w-3.5 h-3.5" style={{ color: 'var(--color-text-heading)' }} />
+                <span className="text-sm whitespace-nowrap" style={{ color: 'var(--color-text-heading)' }}>Top finds</span>
               </div>
               <div className="flex gap-2 flex-1 min-w-0">
                 {SUGGESTION_PILLS.map((pill) => {
@@ -361,8 +368,9 @@ export default function HotelsPage() {
                       className={`group/pill flex items-center gap-2.5 pl-2 pr-4 py-2 rounded-xl border transition-all duration-200 whitespace-nowrap flex-1 min-w-0 cursor-pointer ${
                         isActive
                           ? "bg-brand-light border-brand/20 shadow-sm shadow-brand/10"
-                          : "bg-white border-gray-200 hover:border-gray-300 hover:shadow-md hover:shadow-gray-100"
+                          : "hover:shadow-md"
                       }`}
+                      style={!isActive ? { backgroundColor: 'var(--color-chip-bg)', borderColor: 'var(--color-chip-border)' } : undefined}
                     >
                       <div className={`w-8 h-8 min-w-8 min-h-8 rounded-lg flex items-center justify-center transition-colors ${
                         isActive ? "bg-brand/10 text-brand" : pill.iconBg
@@ -371,11 +379,12 @@ export default function HotelsPage() {
                       </div>
                       <div className="text-left">
                         <p className={`text-[12px] transition-colors ${
-                          isActive ? "text-brand" : "text-gray-800 group-hover/pill:text-gray-900"
-                        }`}>
+                          isActive ? "text-brand" : ""
+                        }`}
+                        style={!isActive ? { color: 'var(--color-text-primary)' } : undefined}>
                           {pill.label}
                         </p>
-                        <p className="text-[10px] text-gray-400">{pill.subtitle}</p>
+                        <p className="text-[10px]" style={{ color: 'var(--color-text-secondary)' }}>{pill.subtitle}</p>
                       </div>
                     </button>
                   );
