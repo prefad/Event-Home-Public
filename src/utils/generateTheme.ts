@@ -247,13 +247,15 @@ export interface ThemeInput {
 export function generateTheme(input: ThemeInput): GeneratedThemes {
   const p = deriveBrandPalette(input.primary);
 
-  // Dark surfaces derived from the primary hue
+  // Dark surfaces — consistent neutral greys for page/content
+  const darkPageBg = '#141517';
+  const darkCardBg = '#1c1d21';
+  const darkSurfaceMid = '#252629';
+  const darkBorder = '#2b2d33';
+  // Header stays branded (same as light mode header)
   const darkHsl = rgbToHsl(hexToRgb(p.primary));
-  const darkPageBg = rgbToHex(hslToRgb({ h: darkHsl.h, s: Math.min(darkHsl.s, 50), l: 8 }));
-  const darkCardBg = rgbToHex(hslToRgb({ h: darkHsl.h, s: Math.min(darkHsl.s, 45), l: 12 }));
-  const darkSurfaceMid = rgbToHex(hslToRgb({ h: darkHsl.h, s: Math.min(darkHsl.s, 40), l: 16 }));
-  const darkBorder = rgbToHex(hslToRgb({ h: darkHsl.h, s: Math.min(darkHsl.s, 40), l: 20 }));
   const darkHeaderBg = rgbToHex(hslToRgb({ h: darkHsl.h, s: Math.min(darkHsl.s, 55), l: 10 }));
+  const darkHeaderBorder = rgbToHex(hslToRgb({ h: darkHsl.h, s: Math.min(darkHsl.s, 40), l: 20 }));
 
   // Secondary palette (if provided)
   const s = input.secondary ? deriveBrandPalette(input.secondary, darkPageBg) : null;
@@ -369,9 +371,9 @@ export function generateTheme(input: ThemeInput): GeneratedThemes {
     '--color-topbar-bg': darkHeaderBg,
     '--color-topbar-text': '#f6f6f6',
     '--color-topbar-text-sub': '#8899b0',
-    '--color-topbar-border': darkBorder,
+    '--color-topbar-border': darkHeaderBorder,
     '--color-header-bg': darkHeaderBg,
-    '--color-header-border': darkBorder,
+    '--color-header-border': darkHeaderBorder,
     '--color-header-text': '#f6f6f6',
     '--color-header-text-sub': '#8899b0',
     '--color-header-nav-active-bg': hexToRgba(p.light, 0.25),

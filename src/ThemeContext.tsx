@@ -1,4 +1,5 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import { restoreBrandTheme } from './components/BrandColorPopup';
 
 export type ThemeName = 'dark' | 'light' | 'bold';
 
@@ -19,11 +20,13 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     setTheme(t);
     localStorage.setItem('theme', t);
     document.documentElement.setAttribute('data-theme', t);
+    restoreBrandTheme(t);
   };
 
-  // Always sync the data-theme attribute with state on mount
+  // Always sync the data-theme attribute with state on mount, and restore brand theme
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme);
+    restoreBrandTheme(theme);
   }, [theme]);
 
   return (

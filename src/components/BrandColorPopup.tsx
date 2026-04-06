@@ -20,15 +20,35 @@ interface Props {
   onClose: () => void;
 }
 
+export function restoreBrandTheme(themeName: string) {
+  const saved = localStorage.getItem('brand-colors');
+  if (!saved) return;
+  try {
+    const { primary, secondary } = JSON.parse(saved);
+    const mode = themeName === 'light' ? 'light' : 'dark';
+    const result = generateTheme({ primary, secondary: secondary || undefined });
+    const vars = mode === 'dark' ? result.dark : result.light;
+    applyTheme(vars);
+  } catch {}
+}
+
 export default function BrandColorPopup({ onClose }: Props) {
   const { theme } = useTheme();
 
-  const [primary, setPrimary] = useState('#0731FA');
-  const [secondary, setSecondary] = useState('');
-  const [hasSecondary, setHasSecondary] = useState(false);
-  const [primaryInput, setPrimaryInput] = useState('#0731FA');
-  const [secondaryInput, setSecondaryInput] = useState('');
-  const [applied, setApplied] = useState(false);
+  const savedColors = useMemo(() => {
+    try {
+      const saved = localStorage.getItem('brand-colors');
+      if (saved) return JSON.parse(saved);
+    } catch {}
+    return null;
+  }, []);
+
+  const [primary, setPrimary] = useState(savedColors?.primary || '#0731FA');
+  const [secondary, setSecondary] = useState(savedColors?.secondary || '');
+  const [hasSecondary, setHasSecondary] = useState(!!savedColors?.secondary);
+  const [primaryInput, setPrimaryInput] = useState(savedColors?.primary || '#0731FA');
+  const [secondaryInput, setSecondaryInput] = useState(savedColors?.secondary || '');
+  const [applied, setApplied] = useState(!!savedColors);
 
   useEffect(() => {
     if (isValidHex(primaryInput)) {
@@ -58,11 +78,13 @@ export default function BrandColorPopup({ onClose }: Props) {
     const mode = theme === 'light' ? 'light' : 'dark';
     const vars = mode === 'dark' ? result.dark : result.light;
     applyTheme(vars);
+    localStorage.setItem('brand-colors', JSON.stringify({ primary, secondary: hasSecondary ? secondary : '' }));
     setApplied(true);
   };
 
   const handleReset = () => {
     clearInlineTheme();
+    localStorage.removeItem('brand-colors');
     setApplied(false);
   };
 

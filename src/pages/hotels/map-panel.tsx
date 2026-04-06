@@ -54,10 +54,13 @@ function PriceMarker({
           <div
             className={`px-2.5 py-1.5 rounded-full shadow-lg text-xs font-medium whitespace-nowrap transition-colors ${
               isActive
-                ? "bg-brand text-white shadow-brand/30"
-                : "hover:bg-brand hover:text-white border"
+                ? "shadow-lg"
+                : "border"
             }`}
-            style={isActive ? undefined : {
+            style={isActive ? {
+              backgroundColor: 'var(--color-action)',
+              color: 'var(--color-action-text)',
+            } : {
               backgroundColor: '#ffffff',
               color: '#1a1a2e',
               borderColor: '#e0e0e0',
@@ -73,12 +76,14 @@ function PriceMarker({
               isActive
                 ? hotel.isHostHotel
                   ? "bg-purple-600"
-                  : "bg-brand"
+                  : ""
                 : hotel.isHostHotel
                 ? "bg-purple-500"
                 : "border-b border-r"
             }`}
-            style={!isActive && !hotel.isHostHotel ? {
+            style={isActive && !hotel.isHostHotel ? {
+              backgroundColor: 'var(--color-action)',
+            } : !isActive && !hotel.isHostHotel ? {
               backgroundColor: '#ffffff',
               borderColor: 'var(--color-card-border)',
             } : undefined}
@@ -152,7 +157,7 @@ function HotelPopup({ hotel, onClose }: { hotel: Hotel; onClose: () => void }) {
           </span>
           <span>from venue</span>
         </div>
-        <button className="w-full mt-3 py-2 bg-brand hover:bg-brand-hover text-white text-xs rounded-lg transition-colors">
+        <button className="w-full mt-3 py-2 text-xs rounded-lg transition-colors" style={{ backgroundColor: 'var(--color-action)', color: 'var(--color-action-text)' }}>
           View Rooms
         </button>
       </div>
@@ -292,7 +297,7 @@ export function MapPanel({
       </motion.div>
 
       {/* Map controls */}
-      <div className="absolute bottom-4 right-4 flex flex-col gap-1">
+      <div className="absolute top-4 right-4 flex flex-col gap-1">
         <button className="w-9 h-9 rounded-[8px] shadow-md flex items-center justify-center hover:shadow-lg transition-all" style={{ backgroundColor: 'var(--color-card-bg)', color: 'var(--color-text-secondary)' }}>
           <Plus className="w-4 h-4" strokeWidth={2} />
         </button>
@@ -302,7 +307,7 @@ export function MapPanel({
       </div>
 
       {/* Map legend */}
-      <div className="absolute bottom-4 left-4 backdrop-blur-sm rounded-lg shadow-md px-3 py-2 flex items-center gap-4 text-[10px]" style={{ backgroundColor: 'var(--color-card-bg)', opacity: 0.9, color: 'var(--color-text-primary)' }}>
+      <div className="absolute top-4 left-4 backdrop-blur-sm rounded-lg shadow-md px-3 py-2 flex items-center gap-4 text-[10px]" style={{ backgroundColor: 'var(--color-card-bg)', opacity: 0.9, color: 'var(--color-text-primary)' }}>
         <div className="flex items-center gap-1.5">
           <div className="w-3 h-3 rounded-full bg-orange-500 flex items-center justify-center">
             <Star className="w-2 h-2 text-white fill-white" />

@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, useSearchParams, useLocation, Link } from
 import { ChevronDown, Share2, MapPin, Sun, Moon } from 'lucide-react';
 import { ThemeProvider } from './ThemeContext';
 import { generateTheme, applyTheme, clearInlineTheme } from './utils/generateTheme';
+import { restoreBrandTheme } from './components/BrandColorPopup';
 import TopBar from './components/TopBar';
 import EventHeader from './components/EventHeader';
 import EventBanner from './components/EventBanner';
@@ -152,33 +153,46 @@ function PreviewContent() {
   );
 }
 
-function AppContent() {
+/** Shared layout with persistent header that animates between pages */
+function MainLayout() {
   const location = useLocation();
 
-  // Clear any leftover inline theme vars when entering the main portal
+  // Re-apply brand theme on route change
   useEffect(() => {
-    clearInlineTheme();
+    const saved = localStorage.getItem('brand-colors');
+    if (saved) {
+      const themeName = localStorage.getItem('theme') || 'dark';
+      restoreBrandTheme(themeName);
+    } else {
+      clearInlineTheme();
+    }
   }, [location.pathname]);
 
+  const isHotels = location.pathname === '/hotels';
+
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-page-bg)', transition: 'background-color 0.3s ease' }}>
+    <div className={`${isHotels ? 'h-screen flex flex-col' : 'min-h-screen'}`} style={{ backgroundColor: 'var(--color-page-bg)', transition: 'background-color 0.3s ease' }}>
       <TopBar />
       <EventHeader />
-      <div
-        className="max-w-[1200px] mx-auto px-12"
-        style={{ transition: 'background-color 0.3s ease' }}
-      >
-        <EventBanner />
-        <TabNavigation />
-        <Routes>
-          <Route path="/" element={<DetailsPage />} />
-          <Route path="/divisions" element={<DivisionsPage />} />
-          <Route path="/rules" element={<DetailsPage />} />
-          <Route path="/payment" element={<DetailsPage />} />
-          <Route path="/accommodations" element={<DetailsPage />} />
-          <Route path="/sponsors" element={<DetailsPage />} />
-        </Routes>
-      </div>
+      {isHotels ? (
+        <HotelsPage headerless />
+      ) : (
+        <div
+          className="max-w-[1200px] mx-auto px-12"
+          style={{ transition: 'background-color 0.3s ease' }}
+        >
+          <EventBanner />
+          <TabNavigation />
+          <Routes>
+            <Route path="/" element={<DetailsPage />} />
+            <Route path="/divisions" element={<DivisionsPage />} />
+            <Route path="/rules" element={<DetailsPage />} />
+            <Route path="/payment" element={<DetailsPage />} />
+            <Route path="/accommodations" element={<DetailsPage />} />
+            <Route path="/sponsors" element={<DetailsPage />} />
+          </Routes>
+        </div>
+      )}
       <FloatingToolbar />
     </div>
   );
@@ -190,9 +204,8 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/playground" element={<ThemePlayground />} />
-          <Route path="/hotels" element={<HotelsPage />} />
           <Route path="/preview/*" element={<PreviewContent />} />
-          <Route path="/*" element={<AppContent />} />
+          <Route path="/*" element={<MainLayout />} />
         </Routes>
       </BrowserRouter>
     </ThemeProvider>

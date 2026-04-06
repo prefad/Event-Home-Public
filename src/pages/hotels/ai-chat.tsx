@@ -2,8 +2,6 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   Plus,
-  Mic,
-  AudioLines,
   Send,
   X,
   Sparkles,
@@ -360,7 +358,7 @@ export function AiChat({ variant = "default", overlayOpen, onOverlayChange }: { 
 
             {/* Overlay input bar */}
             <div className="px-4 py-3 shrink-0 space-y-2.5" style={{ backgroundColor: 'var(--color-page-bg)' }}>
-              <div className="flex items-center gap-2 rounded-full pl-3 pr-2.5 py-2 transition-all" style={{ backgroundColor: 'var(--color-input-bg)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--color-input-border)' }}>
+              <div className="flex items-center gap-2 rounded-2xl pl-3 pr-2.5 py-3 transition-all" style={{ backgroundColor: 'var(--color-input-bg)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--color-input-border)' }}>
                 <input
                   ref={overlayInputRef}
                   type="text"
@@ -368,19 +366,24 @@ export function AiChat({ variant = "default", overlayOpen, onOverlayChange }: { 
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  className="flex-1 bg-transparent text-sm placeholder-gray-400 outline-none min-w-0"
+                  className="flex-1 bg-transparent text-base placeholder-gray-400 outline-none min-w-0"
                   style={{ color: 'var(--color-text-heading)' }}
                 />
                 {inputValue.trim() ? (
                   <button
                     onClick={() => handleSend()}
-                    className="w-8 h-8 flex items-center justify-center rounded-full bg-brand hover:bg-brand-hover text-white transition-colors shrink-0"
+                    className="w-9 h-9 flex items-center justify-center rounded-xl transition-colors shrink-0"
+                    style={{ backgroundColor: 'var(--color-action)', color: 'var(--color-action-text)' }}
                   >
                     <Send className="w-3.5 h-3.5" />
                   </button>
                 ) : (
-                  <button className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-900 text-white hover:bg-gray-800 transition-colors shrink-0">
-                    <AudioLines className="w-4 h-4" />
+                  <button
+                    onClick={() => handleSend()}
+                    className="w-9 h-9 flex items-center justify-center rounded-xl transition-colors shrink-0"
+                    style={{ backgroundColor: 'var(--color-action)', color: 'var(--color-action-text)' }}
+                  >
+                    <Send className="w-3.5 h-3.5" />
                   </button>
                 )}
               </div>
@@ -457,13 +460,13 @@ export function AiChat({ variant = "default", overlayOpen, onOverlayChange }: { 
 
               {/* Overlay input bar */}
               <div className="px-4 py-3 shrink-0 space-y-2.5" style={{ backgroundColor: 'var(--color-page-bg)' }}>
-                <div className="flex items-center gap-2 rounded-full pl-2.5 pr-2.5 py-2 transition-all" style={{ backgroundColor: 'var(--color-input-bg)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--color-input-border)' }}>
+                <div className="flex items-center gap-2 rounded-2xl pl-2.5 pr-2.5 py-3 transition-all" style={{ backgroundColor: 'var(--color-input-bg)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--color-input-border)' }}>
                   <button
                     onClick={() => setIsOverlayOpen(false)}
                     className="w-8 h-8 flex items-center justify-center rounded-full transition-colors shrink-0"
                     style={{ color: 'var(--color-text-secondary)' }}
                   >
-                    <div className="w-4 h-[18px]">
+                    <div className="w-5 h-[22px]">
                       <Vector />
                     </div>
                   </button>
@@ -474,19 +477,24 @@ export function AiChat({ variant = "default", overlayOpen, onOverlayChange }: { 
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    className="flex-1 bg-transparent text-sm placeholder-gray-400 outline-none min-w-0"
+                    className="flex-1 bg-transparent text-base placeholder-gray-400 outline-none min-w-0"
                     style={{ color: 'var(--color-text-heading)' }}
                   />
                   {inputValue.trim() ? (
                     <button
                       onClick={() => handleSend()}
-                      className="w-8 h-8 flex items-center justify-center rounded-full bg-brand hover:bg-brand-hover text-white transition-colors shrink-0"
+                      className="w-9 h-9 flex items-center justify-center rounded-xl transition-colors shrink-0"
+                    style={{ backgroundColor: 'var(--color-action)', color: 'var(--color-action-text)' }}
                     >
                       <Send className="w-3.5 h-3.5" />
                     </button>
                   ) : (
-                    <button className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-900 text-white hover:bg-gray-800 transition-colors shrink-0">
-                      <AudioLines className="w-4 h-4" />
+                    <button
+                      onClick={() => handleSend()}
+                      className="w-9 h-9 flex items-center justify-center rounded-xl transition-colors shrink-0"
+                      style={{ backgroundColor: 'var(--color-action)', color: 'var(--color-action-text)' }}
+                    >
+                      <Send className="w-3.5 h-3.5" />
                     </button>
                   )}
                 </div>
@@ -501,8 +509,8 @@ export function AiChat({ variant = "default", overlayOpen, onOverlayChange }: { 
       <div className={`shrink-0 flex flex-col ${
         variant === "mobile-float"
           ? "fixed bottom-0 left-0 right-0 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] rounded-t-[12px] overflow-hidden"
-          : "pt-2 pb-0"
-      }`} style={{ backgroundColor: 'var(--color-page-bg)' }}>
+          : ""
+      }`} style={variant === "mobile-float" ? { backgroundColor: 'var(--color-page-bg)' } : undefined}>
         {/* Expanded chat panel */}
         <AnimatePresence>
           {isExpanded && (
@@ -624,8 +632,8 @@ export function AiChat({ variant = "default", overlayOpen, onOverlayChange }: { 
         </AnimatePresence>
 
         {/* Input bar — always visible */}
-        <div className="px-3 sm:px-4 pt-2.5 pb-1" style={{ backgroundColor: 'var(--color-page-bg)' }}>
-          <div className="flex items-center gap-2 rounded-full pl-2.5 pr-2.5 py-2 transition-all" style={{ backgroundColor: 'var(--color-input-bg)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--color-input-border)' }}>
+        <div className="px-0 pt-0 pb-0">
+          <div className="flex items-center gap-2 rounded-2xl pl-2.5 pr-2.5 py-3 transition-all" style={{ backgroundColor: 'var(--color-input-bg)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--color-input-border)' }}>
             <button
               onClick={() => {
                 if (isOverlayOpen) {
@@ -636,9 +644,9 @@ export function AiChat({ variant = "default", overlayOpen, onOverlayChange }: { 
               style={{ color: 'var(--color-text-secondary)' }}
             >
               {isExpanded ? (
-                <X className="w-4 h-4" />
+                <X className="w-5 h-5" />
               ) : (
-                <div className="w-4 h-[18px]">
+                <div className="w-5 h-[22px]">
                   <Vector />
                 </div>
               )}
@@ -650,27 +658,25 @@ export function AiChat({ variant = "default", overlayOpen, onOverlayChange }: { 
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={handleKeyDown}
-              className="flex-1 bg-transparent text-sm placeholder-gray-400 outline-none min-w-0"
+              className="flex-1 bg-transparent text-base placeholder-gray-400 outline-none min-w-0"
               style={{ color: 'var(--color-text-heading)' }}
             />
             {inputValue.trim() ? (
               <button
                 onClick={() => handleSend()}
-                className="w-8 h-8 flex items-center justify-center rounded-full bg-brand hover:bg-brand-hover text-white transition-colors shrink-0"
+                className="w-9 h-9 flex items-center justify-center rounded-xl transition-colors shrink-0"
+                    style={{ backgroundColor: 'var(--color-action)', color: 'var(--color-action-text)' }}
               >
                 <Send className="w-3.5 h-3.5" />
               </button>
             ) : (
-              <>
-                <button className="w-8 h-8 flex items-center justify-center rounded-full transition-colors shrink-0" style={{ color: 'var(--color-text-secondary)' }}>
-                  <Mic className="w-4 h-4" />
-                </button>
-                <button
-                  className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-900 text-white hover:bg-gray-800 transition-colors shrink-0"
-                >
-                  <AudioLines className="w-4 h-4" />
-                </button>
-              </>
+              <button
+                onClick={() => handleSend()}
+                className="w-9 h-9 flex items-center justify-center rounded-xl transition-colors shrink-0"
+                style={{ backgroundColor: 'var(--color-action)', color: 'var(--color-action-text)' }}
+              >
+                <Send className="w-3.5 h-3.5" />
+              </button>
             )}
           </div>
         </div>

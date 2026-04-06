@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   Calendar,
   ChevronDown,
@@ -141,7 +141,7 @@ function DatePickerDropdown({ checkIn, checkOut, onSelect, onClose }: DatePicker
             isPast
               ? "cursor-not-allowed"
               : isCheckIn || isCheckOut
-              ? "bg-brand text-white"
+              ? ""
               : inRange
               ? "bg-brand-light text-brand"
               : ""
@@ -149,7 +149,9 @@ function DatePickerDropdown({ checkIn, checkOut, onSelect, onClose }: DatePicker
           style={
             isPast
               ? { color: 'var(--color-text-secondary)', opacity: 0.5 }
-              : !(isCheckIn || isCheckOut) && !inRange
+              : isCheckIn || isCheckOut
+              ? { backgroundColor: 'var(--color-action)', color: 'var(--color-action-text)' }
+              : !inRange
               ? { color: 'var(--color-text-primary)' }
               : undefined
           }
@@ -189,7 +191,7 @@ function DatePickerDropdown({ checkIn, checkOut, onSelect, onClose }: DatePicker
             </div>
             <div className="grid grid-cols-7 gap-0.5 mb-1">
               {DAYS.map((day) => (
-                <div key={day} className="w-8 h-6 flex items-center justify-center text-[10px]" style={{ color: 'var(--color-input-placeholder)' }}>{day}</div>
+                <div key={day} className="w-8 h-6 flex items-center justify-center text-[10px]" style={{ color: 'var(--color-text-secondary)' }}>{day}</div>
               ))}
             </div>
             <div className="grid grid-cols-7 gap-0.5">
@@ -208,7 +210,7 @@ function DatePickerDropdown({ checkIn, checkOut, onSelect, onClose }: DatePicker
         </div>
         <div className="flex gap-2">
           <button onClick={() => { onSelect(null, null); setSelecting("checkin"); }} className="px-3 py-1.5 text-xs" style={{ color: 'var(--color-text-secondary)' }} onMouseEnter={(e) => e.currentTarget.style.color = 'var(--color-text-primary)'} onMouseLeave={(e) => e.currentTarget.style.color = 'var(--color-text-secondary)'}>Clear</button>
-          <button onClick={onClose} className="px-3 py-1.5 text-xs bg-brand text-white rounded-[6px] hover:bg-brand-hover transition-colors">Done</button>
+          <button onClick={onClose} className="px-3 py-1.5 text-xs rounded-[6px] transition-colors" style={{ backgroundColor: 'var(--color-action)', color: 'var(--color-action-text)' }}>Done</button>
         </div>
       </div>
     </motion.div>
@@ -264,7 +266,7 @@ function GuestsDropdown({ rooms, adults, children, onUpdate, onClose }: GuestsDr
           </div>
         ))}
       </div>
-      <button onClick={onClose} className="w-full mt-4 px-3 py-2 text-xs bg-brand text-white rounded-[6px] hover:bg-brand-hover transition-colors">
+      <button onClick={onClose} className="w-full mt-4 px-3 py-2 text-xs rounded-[6px] transition-colors" style={{ backgroundColor: 'var(--color-action)', color: 'var(--color-action-text)' }}>
         Done
       </button>
     </motion.div>
@@ -291,6 +293,8 @@ export function FilterBar({
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showGuests, setShowGuests] = useState(false);
   const [showDistance, setShowDistance] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const [checkIn, setCheckIn] = useState<Date | null>(new Date(2026, 2, 19));
   const [checkOut, setCheckOut] = useState<Date | null>(new Date(2026, 2, 21));
   const [rooms, setRooms] = useState(1);
@@ -303,104 +307,124 @@ export function FilterBar({
 
   return (
     <div className="space-y-3">
-      {/* Kayak-style search bar */}
-      <div className="flex flex-col sm:flex-row items-stretch rounded-xl border" style={{ backgroundColor: 'var(--color-input-bg)', borderColor: 'var(--color-input-border)' }}>
-        {/* Hotel search */}
-        <div className="flex-1 flex items-center gap-2 px-3 py-2.5 border-b sm:border-b-0 sm:border-r min-w-0" style={{ borderColor: 'var(--color-input-border)' }}>
-          <Search className="w-4 h-4 shrink-0" style={{ color: 'var(--color-input-placeholder)' }} />
-          <input
-            type="text"
-            placeholder="Search hotels by name..."
-            value={searchQuery}
-            onChange={(e) => onSearchChange(e.target.value)}
-            className="flex-1 bg-transparent text-sm placeholder:text-gray-400 focus:outline-none min-w-0"
-            style={{ color: 'var(--color-input-text)' }}
-          />
-        </div>
-
-        {/* Dates + Guests row — side by side on mobile */}
-        <div className="flex items-stretch border-b sm:border-b-0 sm:contents">
-          {/* Dates */}
-          <div className="relative flex-1 flex items-center border-r" style={{ borderColor: 'var(--color-input-border)' }}>
-            <button
-              onClick={() => { setShowDatePicker(!showDatePicker); setShowGuests(false); }}
-              className="w-full sm:w-auto flex items-center gap-2 px-3 py-2.5 transition-colors text-left"
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--color-hover-bg)'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = ''}
-            >
-              <Calendar className="w-4 h-4 shrink-0" style={{ color: 'var(--color-input-placeholder)' }} />
-              <div className="flex items-center gap-1.5">
-                <span className="text-sm whitespace-nowrap" style={{ color: 'var(--color-text-heading)' }}>
-                  {checkIn ? formatDate(checkIn) : "Check-in"}
-                </span>
-                <span style={{ color: 'var(--color-text-secondary)' }}>–</span>
-                <span className="text-sm whitespace-nowrap" style={{ color: 'var(--color-text-heading)' }}>
-                  {checkOut ? formatDate(checkOut) : "Check-out"}
-                </span>
-              </div>
-            </button>
-            <AnimatePresence>
-              {showDatePicker && (
-                <>
-                  <div className="fixed inset-0 z-30" onClick={() => setShowDatePicker(false)} />
-                  <DatePickerDropdown
-                    checkIn={checkIn}
-                    checkOut={checkOut}
-                    onSelect={(ci, co) => { setCheckIn(ci); setCheckOut(co); }}
-                    onClose={() => setShowDatePicker(false)}
-                  />
-                </>
-              )}
-            </AnimatePresence>
-          </div>
-
-          {/* Guests */}
-          <div className="relative flex-1 flex items-center">
-            <button
-              onClick={() => { setShowGuests(!showGuests); setShowDatePicker(false); }}
-              className="w-full sm:w-auto flex items-center gap-2 px-3 py-2.5 transition-colors text-left"
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--color-hover-bg)'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = ''}
-            >
-              <Users className="w-4 h-4 shrink-0" style={{ color: 'var(--color-input-placeholder)' }} />
-              <span className="text-sm whitespace-nowrap" style={{ color: 'var(--color-text-heading)' }}>{guestSummary}</span>
-              <ChevronDown className={`w-3 h-3 transition-transform ${showGuests ? "rotate-180" : ""}`} style={{ color: 'var(--color-input-placeholder)' }} />
-            </button>
-            <AnimatePresence>
-              {showGuests && (
-                <>
-                  <div className="fixed inset-0 z-30" onClick={() => setShowGuests(false)} />
-                  <GuestsDropdown
-                    rooms={rooms}
-                    adults={adults}
-                    children={childrenCount}
-                    onUpdate={(r, a, c) => { setRooms(r); setAdults(a); setChildrenCount(c); }}
-                    onClose={() => setShowGuests(false)}
-                  />
-                </>
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
-      </div>
-
       {/* Filter chips row */}
       <div className="flex items-center gap-0 min-w-0">
         {/* Scrollable filters */}
         <div className="flex-1 min-w-0 flex items-center gap-2 overflow-x-auto pb-1 -mb-1 md:flex-wrap md:overflow-x-visible md:pb-0 md:mb-0 scrollbar-hide">
+          {/* Search + Dates + Guests pill */}
+          <div className="relative flex items-stretch rounded-full border shrink-0" style={{ backgroundColor: 'var(--color-chip-bg)', borderColor: 'var(--color-chip-border)' }}>
+            {/* Hotel search — icon only, expands on click */}
+            <div className="flex items-stretch border-r" style={{ borderColor: 'var(--color-chip-border)' }}>
+              {showSearch ? (
+                <div className="flex items-center gap-1.5 px-4 py-2">
+                  <Search className="w-4 h-4 shrink-0" style={{ color: 'var(--color-text-heading)' }} />
+                  <input
+                    ref={searchInputRef}
+                    type="text"
+                    placeholder="Search hotels..."
+                    value={searchQuery}
+                    onChange={(e) => onSearchChange(e.target.value)}
+                    className="bg-transparent text-sm placeholder:text-gray-400 focus:outline-none w-[120px]"
+                    style={{ color: 'var(--color-input-text)' }}
+                  />
+                  <button
+                    onClick={() => { onSearchChange(''); setShowSearch(false); }}
+                    className="shrink-0 transition-colors"
+                    style={{ color: 'var(--color-text-secondary)' }}
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => { setShowSearch(true); setTimeout(() => searchInputRef.current?.focus(), 50); }}
+                  className="flex items-center px-4 py-2 transition-colors rounded-l-full"
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--color-card-border)'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = ''}
+                >
+                  <Search className="w-4 h-4" style={{ color: 'var(--color-text-heading)' }} />
+                </button>
+              )}
+            </div>
+
+            {/* Dates */}
+            <div className="relative flex items-stretch border-r" style={{ borderColor: 'var(--color-chip-border)' }}>
+              <button
+                onClick={() => { setShowDatePicker(!showDatePicker); setShowGuests(false); }}
+                className="flex items-center gap-1.5 px-4 py-2 transition-colors text-left"
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--color-card-border)'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = ''}
+              >
+                <Calendar className="w-4 h-4 shrink-0" style={{ color: 'var(--color-text-heading)' }} />
+                <div className="flex items-center gap-1.5">
+                  <span className="text-sm whitespace-nowrap" style={{ color: 'var(--color-text-heading)' }}>
+                    {checkIn ? formatDate(checkIn) : "Check-in"}
+                  </span>
+                  <span style={{ color: 'var(--color-text-secondary)' }}>–</span>
+                  <span className="text-sm whitespace-nowrap" style={{ color: 'var(--color-text-heading)' }}>
+                    {checkOut ? formatDate(checkOut) : "Check-out"}
+                  </span>
+                </div>
+              </button>
+              <AnimatePresence>
+                {showDatePicker && (
+                  <>
+                    <div className="fixed inset-0 z-30" onClick={() => setShowDatePicker(false)} />
+                    <DatePickerDropdown
+                      checkIn={checkIn}
+                      checkOut={checkOut}
+                      onSelect={(ci, co) => { setCheckIn(ci); setCheckOut(co); }}
+                      onClose={() => setShowDatePicker(false)}
+                    />
+                  </>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* Guests */}
+            <div className="relative flex items-stretch">
+              <button
+                onClick={() => { setShowGuests(!showGuests); setShowDatePicker(false); }}
+                className="flex items-center gap-1.5 px-4 py-2 transition-colors text-left rounded-r-full"
+                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = 'var(--color-card-border)'}
+                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = ''}
+              >
+                <Users className="w-4 h-4 shrink-0" style={{ color: 'var(--color-text-heading)' }} />
+                <span className="text-sm whitespace-nowrap" style={{ color: 'var(--color-text-heading)' }}>{guestSummary}</span>
+                <ChevronDown className={`w-3 h-3 transition-transform ${showGuests ? "rotate-180" : ""}`} style={{ color: 'var(--color-text-heading)' }} />
+              </button>
+              <AnimatePresence>
+                {showGuests && (
+                  <>
+                    <div className="fixed inset-0 z-30" onClick={() => setShowGuests(false)} />
+                    <GuestsDropdown
+                      rooms={rooms}
+                      adults={adults}
+                      children={childrenCount}
+                      onUpdate={(r, a, c) => { setRooms(r); setAdults(a); setChildrenCount(c); }}
+                      onClose={() => setShowGuests(false)}
+                    />
+                  </>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
+
           {/* Price range */}
           <div className="relative shrink-0">
             <button
               onClick={() => setShowPrice(!showPrice)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs border transition-colors whitespace-nowrap cursor-pointer ${
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm border transition-colors whitespace-nowrap cursor-pointer ${
                 priceRange[0] > 100 || priceRange[1] < 500
                   ? "bg-brand-light text-brand border-brand/20"
-                  : "hover:border-brand"
+                  : ""
               }`}
               style={priceRange[0] <= 100 && priceRange[1] >= 500 ? { backgroundColor: 'var(--color-chip-bg)', borderColor: 'var(--color-chip-border)', color: 'var(--color-chip-text)' } : undefined}
+              onMouseEnter={(e) => { if (priceRange[0] <= 100 && priceRange[1] >= 500) e.currentTarget.style.backgroundColor = 'var(--color-card-border)'; }}
+              onMouseLeave={(e) => { if (priceRange[0] <= 100 && priceRange[1] >= 500) e.currentTarget.style.backgroundColor = 'var(--color-chip-bg)'; }}
             >
               ${priceRange[0]} - ${priceRange[1]}
-              <ChevronDown className={`w-3 h-3 transition-transform ${showPrice ? "rotate-180" : ""}`} style={{ color: 'var(--color-input-placeholder)' }} />
+              <ChevronDown className={`w-3 h-3 transition-transform ${showPrice ? "rotate-180" : ""}`} style={{ color: 'var(--color-text-heading)' }} />
             </button>
             <AnimatePresence>
               {showPrice && (
@@ -416,7 +440,7 @@ export function FilterBar({
                     <p className="text-xs mb-3 font-medium" style={{ color: 'var(--color-text-primary)' }}>Price per night</p>
                     <div className="flex items-center gap-3 mb-3">
                       <div className="flex-1">
-                        <label className="text-[10px] uppercase" style={{ color: 'var(--color-input-placeholder)' }}>Min</label>
+                        <label className="text-[10px] uppercase" style={{ color: 'var(--color-text-secondary)' }}>Min</label>
                         <input
                           type="number"
                           value={priceRange[0]}
@@ -427,7 +451,7 @@ export function FilterBar({
                       </div>
                       <span className="mt-4" style={{ color: 'var(--color-text-secondary)' }}>-</span>
                       <div className="flex-1">
-                        <label className="text-[10px] uppercase" style={{ color: 'var(--color-input-placeholder)' }}>Max</label>
+                        <label className="text-[10px] uppercase" style={{ color: 'var(--color-text-secondary)' }}>Max</label>
                         <input
                           type="number"
                           value={priceRange[1]}
@@ -459,12 +483,14 @@ export function FilterBar({
               <button
                 key={f.id}
                 onClick={() => onFilterToggle(f.id)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs border transition-all whitespace-nowrap shrink-0 cursor-pointer ${
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm border transition-all whitespace-nowrap shrink-0 cursor-pointer ${
                   isActive
-                    ? "bg-brand text-white border-brand"
-                    : "hover:border-brand"
+                    ? "border-transparent"
+                    : ""
                 }`}
-                style={!isActive ? { backgroundColor: 'var(--color-chip-bg)', borderColor: 'var(--color-chip-border)', color: 'var(--color-chip-text)' } : undefined}
+                style={isActive ? { backgroundColor: 'var(--color-action)', color: 'var(--color-action-text)' } : { backgroundColor: 'var(--color-chip-bg)', borderColor: 'var(--color-chip-border)', color: 'var(--color-chip-text)' }}
+                onMouseEnter={(e) => { if (!isActive) e.currentTarget.style.backgroundColor = 'var(--color-card-border)'; }}
+                onMouseLeave={(e) => { if (!isActive) e.currentTarget.style.backgroundColor = isActive ? 'var(--color-action)' : 'var(--color-chip-bg)'; }}
               >
                 <Icon className="w-3 h-3" />
                 {f.label}
@@ -476,16 +502,18 @@ export function FilterBar({
           <div className="relative shrink-0">
             <button
               onClick={() => setShowDistance(!showDistance)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs border transition-colors whitespace-nowrap cursor-pointer ${
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm border transition-colors whitespace-nowrap cursor-pointer ${
                 maxDistance !== null
                   ? "bg-brand-light text-brand border-brand/20"
-                  : "hover:border-brand"
+                  : ""
               }`}
               style={maxDistance === null ? { backgroundColor: 'var(--color-chip-bg)', borderColor: 'var(--color-chip-border)', color: 'var(--color-chip-text)' } : undefined}
+              onMouseEnter={(e) => { if (maxDistance === null) e.currentTarget.style.backgroundColor = 'var(--color-card-border)'; }}
+              onMouseLeave={(e) => { if (maxDistance === null) e.currentTarget.style.backgroundColor = 'var(--color-chip-bg)'; }}
             >
               <MapPin className="w-3 h-3" />
               {maxDistance !== null ? `Within ${maxDistance} km` : "Distance"}
-              <ChevronDown className={`w-3 h-3 transition-transform ${showDistance ? "rotate-180" : ""}`} style={{ color: 'var(--color-input-placeholder)' }} />
+              <ChevronDown className={`w-3 h-3 transition-transform ${showDistance ? "rotate-180" : ""}`} style={{ color: 'var(--color-text-heading)' }} />
             </button>
             <AnimatePresence>
               {showDistance && (
@@ -498,7 +526,7 @@ export function FilterBar({
                     className="absolute top-full mt-1 left-0 rounded-xl shadow-xl border py-1 z-40 min-w-[200px]"
                     style={{ backgroundColor: 'var(--color-card-bg)', borderColor: 'var(--color-divider)' }}
                   >
-                    <p className="px-3 pt-2 pb-1.5 text-[10px] uppercase" style={{ color: 'var(--color-input-placeholder)' }}>Max distance to venue</p>
+                    <p className="px-3 pt-2 pb-1.5 text-[10px] uppercase" style={{ color: 'var(--color-text-secondary)' }}>Max distance to venue</p>
                     {[
                       { value: null, label: "Any distance" },
                       { value: 1, label: "Within 1 km" },

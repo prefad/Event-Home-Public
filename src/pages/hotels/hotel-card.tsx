@@ -65,20 +65,20 @@ export function HotelCard({
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      onMouseEnter={onHover}
-      onMouseLeave={onLeave}
       onClick={onClick}
       style={{
         backgroundColor: 'var(--color-card-bg)',
-        ...((!isActive && !hotel.isHostHotel) ? { borderColor: 'var(--color-card-border)' } : {}),
+        borderColor: isActive ? (hotel.isHostHotel ? '#a855f7' : 'var(--color-action)') : 'var(--color-card-border)',
       }}
-      className={`group relative rounded-[10px] cursor-pointer transition-all duration-200 ${
-        isActive
-          ? "ring-2 ring-brand shadow-lg shadow-brand/10"
-          : hotel.isHostHotel
-          ? "ring-2 ring-purple-500"
-          : "border hover:shadow-lg hover:border-gray-300"
-      }`}
+      className="group relative border rounded-[10px] cursor-pointer transition-all duration-200"
+      onMouseEnter={(e) => {
+        if (!isActive) e.currentTarget.style.borderColor = hotel.isHostHotel ? '#a855f7' : 'var(--color-action)';
+        onHover?.();
+      }}
+      onMouseLeave={(e) => {
+        if (!isActive) e.currentTarget.style.borderColor = 'var(--color-card-border)';
+        onLeave?.();
+      }}
     >
       {/* Host Hotel Bar */}
       {hotel.isHostHotel && (
@@ -208,7 +208,10 @@ export function HotelCard({
             onClick={(e) => {
               e.stopPropagation();
             }}
-            className="w-full px-3 py-2 rounded-[6px] text-xs text-center transition-all bg-brand hover:bg-brand-hover text-white mb-0.5"
+            className="w-full px-3 py-2 rounded-[6px] text-xs font-medium text-center transition-all text-white mb-0.5"
+            style={{ backgroundColor: 'var(--color-action)', color: 'var(--color-action-text)' }}
+            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-action-hover)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-action)'; }}
           >
             View Hotel
           </button>
@@ -329,7 +332,10 @@ export function HotelCard({
               onClick={(e) => {
                 e.stopPropagation();
               }}
-              className="px-5 py-2.5 rounded-[6px] text-xs text-center transition-all bg-brand hover:bg-brand-hover text-white"
+              className="px-5 py-2.5 rounded-[6px] text-xs text-center transition-all text-white"
+              style={{ backgroundColor: 'var(--color-action)', color: 'var(--color-action-text)' }}
+              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-action-hover)'; }}
+              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-action)'; }}
             >
               View Hotel
             </button>
