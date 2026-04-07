@@ -24,17 +24,18 @@
 /* ===== MOCKUP A: Dark Immersive ===== */
 [data-theme="dark"] {
   --color-page-bg: #141517;
-  --color-topbar-bg: #020a3d;
+  /* Header stays same as light theme */
+  --color-topbar-bg: #05183e;
   --color-topbar-text: #f6f6f6;
   --color-topbar-text-sub: #8899b0;
-  --color-topbar-border: #0b1560;
-  --color-header-bg: #020a3d;
-  --color-header-border: #0b1560;
+  --color-topbar-border: #0a2550;
+  --color-header-bg: #05183e;
+  --color-header-border: #0a2550;
   --color-header-text: #f6f6f6;
   --color-header-text-sub: #8899b0;
-  --color-header-nav-active-bg: rgba(7, 49, 250, 0.25);
-  --color-header-nav-active-text: #4d6dfa;
-  --color-header-nav-hover: rgba(255, 255, 255, 0.06);
+  --color-header-nav-active-bg: rgba(91, 163, 224, 0.2);
+  --color-header-nav-active-text: #5ba3e0;
+  --color-header-nav-hover: rgba(255, 255, 255, 0.08);
   --color-content-bg: #141517;
   --color-card-bg: #1c1d21;
   --color-card-border: #2b2d33;

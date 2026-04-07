@@ -312,7 +312,7 @@ export function generateTheme(input: ThemeInput): GeneratedThemes {
 
   // ── Light Theme ──
   const light: ThemeVariables = {
-    '--color-page-bg': '#f0f3f8',
+    '--color-page-bg': '#ffffff',
     '--color-topbar-bg': p.dark15,
     '--color-topbar-text': topbarTextMain,
     '--color-topbar-text-sub': '#8899b0',
@@ -324,7 +324,7 @@ export function generateTheme(input: ThemeInput): GeneratedThemes {
     '--color-header-nav-active-bg': hexToRgba(p.light, 0.2),
     '--color-header-nav-active-text': headerNavActiveLight,
     '--color-header-nav-hover': 'rgba(255, 255, 255, 0.08)',
-    '--color-content-bg': '#f0f3f8',
+    '--color-content-bg': '#ffffff',
     '--color-card-bg': '#ffffff',
     '--color-card-border': '#d5dce8',
     '--color-text-primary': '#0d1f38',
@@ -366,19 +366,20 @@ export function generateTheme(input: ThemeInput): GeneratedThemes {
   };
 
   // ── Dark Theme ──
+  // Header/topbar uses same values as light so it stays consistent across themes
   const dark: ThemeVariables = {
     '--color-page-bg': darkPageBg,
-    '--color-topbar-bg': darkHeaderBg,
-    '--color-topbar-text': '#f6f6f6',
+    '--color-topbar-bg': p.dark15,
+    '--color-topbar-text': topbarTextMain,
     '--color-topbar-text-sub': '#8899b0',
-    '--color-topbar-border': darkHeaderBorder,
-    '--color-header-bg': darkHeaderBg,
-    '--color-header-border': darkHeaderBorder,
-    '--color-header-text': '#f6f6f6',
+    '--color-topbar-border': p.dark10,
+    '--color-header-bg': p.dark15,
+    '--color-header-border': p.dark10,
+    '--color-header-text': headerTextMain,
     '--color-header-text-sub': '#8899b0',
-    '--color-header-nav-active-bg': hexToRgba(p.light, 0.25),
-    '--color-header-nav-active-text': headerNavActiveDark,
-    '--color-header-nav-hover': 'rgba(255, 255, 255, 0.06)',
+    '--color-header-nav-active-bg': hexToRgba(p.light, 0.2),
+    '--color-header-nav-active-text': headerNavActiveLight,
+    '--color-header-nav-hover': 'rgba(255, 255, 255, 0.08)',
     '--color-content-bg': darkPageBg,
     '--color-card-bg': darkCardBg,
     '--color-card-border': darkBorder,
