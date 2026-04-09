@@ -192,15 +192,11 @@ export default function HotelsPage({ headerless = false }: { headerless?: boolea
   ];
 
   const handleSuggestionClick = (label: string) => {
-    // Toggle: clicking the same pill again closes the strip
-    if (activeSuggestion === label) {
-      setActiveSuggestion(null);
-    } else {
-      setActiveSuggestion(label);
-      setSelectedHotelId(null); // Clear selected hotel so all filtered pins show
-      if (chatOverlayOpen) {
-        setChatOverlayOpen(false);
-      }
+    // Switch to new suggestion (don't toggle off — only Clear closes)
+    setActiveSuggestion(label);
+    setSelectedHotelId(null);
+    if (chatOverlayOpen) {
+      setChatOverlayOpen(false);
     }
   };
 
@@ -364,9 +360,96 @@ export default function HotelsPage({ headerless = false }: { headerless?: boolea
                     );
                   })}
                 </div>
+
+                {/* Inline results when a suggestion is active */}
+                <AnimatePresence>
+                  {activeSuggestion && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.25, ease: "easeInOut" }}
+                      className="overflow-hidden"
+                    >
+                      <div className="pt-3 border-t" style={{ borderColor: 'var(--color-card-border)' }}>
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            {(() => {
+                              const pill = SUGGESTION_PILLS.find((p) => p.label === activeSuggestion);
+                              const SuggIcon = pill?.icon;
+                              return SuggIcon ? <SuggIcon className="w-3 h-3" style={{ color: pill?.activeColor }} /> : null;
+                            })()}
+                            <span className="text-[13px] font-medium" style={{ color: 'var(--color-text-heading)' }}>{activeSuggestion}</span>
+                            <span className="text-[10px] px-1.5 py-0.5 rounded-full" style={{ color: 'var(--color-text-secondary)', backgroundColor: 'var(--color-chip-bg)' }}>{suggestionFilteredHotels.length}</span>
+                          </div>
+                          <button
+                            onClick={() => setActiveSuggestion(null)}
+                            className="text-[11px] px-2.5 py-0.5 rounded-full border transition-colors"
+                            style={{ color: 'var(--color-text-secondary)', borderColor: 'var(--color-card-border)' }}
+                            onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--color-text-heading)'; e.currentTarget.style.borderColor = 'var(--color-text-secondary)'; }}
+                            onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--color-text-secondary)'; e.currentTarget.style.borderColor = 'var(--color-card-border)'; }}
+                          >
+                            Clear
+                          </button>
+                        </div>
+                        <div className="flex gap-2.5 overflow-x-auto scrollbar-hide pb-1">
+                          {suggestionFilteredHotels.map((hotel) => {
+                            const ratingLabel = hotel.guestRating >= 9 ? "Exceptional" : hotel.guestRating >= 8.5 ? "Excellent" : hotel.guestRating >= 8 ? "Very Good" : "Good";
+                            return (
+                              <div
+                                key={hotel.id}
+                                className="w-[200px] min-w-[200px] rounded-xl border overflow-hidden transition-all cursor-pointer group"
+                                style={{
+                                  backgroundColor: 'var(--color-chip-bg)',
+                                  borderColor: selectedHotelId === hotel.id ? 'var(--color-action)' : 'var(--color-card-border)',
+                                }}
+                                onMouseEnter={(e) => { e.currentTarget.style.borderColor = 'var(--color-action)'; setActiveHotelId(hotel.id); }}
+                                onMouseLeave={(e) => { if (selectedHotelId !== hotel.id) e.currentTarget.style.borderColor = 'var(--color-card-border)'; setActiveHotelId(null); }}
+                                onClick={() => setSelectedHotelId(selectedHotelId === hotel.id ? null : hotel.id)}
+                              >
+                                <div className="relative h-[90px] overflow-hidden">
+                                  <img src={hotel.image} alt={hotel.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+                                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                                  {hotel.badges.length > 0 && (
+                                    <span className="absolute top-1.5 left-1.5 text-[8px] px-1.5 py-0.5 rounded-full bg-white/20 text-white backdrop-blur-sm font-medium">
+                                      {hotel.badges[0]}
+                                    </span>
+                                  )}
+                                  <div className="absolute bottom-1.5 left-2 right-2 flex items-end justify-between">
+                                    <span className="text-[13px] font-semibold text-white drop-shadow-sm">${hotel.price}<span className="text-[9px] font-normal text-white/70">/night</span></span>
+                                    {hotel.originalPrice && (
+                                      <span className="text-[9px] text-white/50 line-through">${hotel.originalPrice}</span>
+                                    )}
+                                  </div>
+                                </div>
+                                <div className="p-2">
+                                  <p className="text-[11px] font-medium truncate" style={{ color: 'var(--color-text-heading)' }}>{hotel.name}</p>
+                                  <div className="flex items-center gap-1.5 mt-1">
+                                    <span className="text-[9px] px-1 py-0.5 rounded font-medium bg-emerald-500/15 text-emerald-400">{hotel.guestRating}</span>
+                                    <span className="text-[9px]" style={{ color: 'var(--color-text-secondary)' }}>{ratingLabel}</span>
+                                  </div>
+                                  <div className="flex items-center gap-2 mt-1.5 text-[9px]" style={{ color: 'var(--color-text-secondary)' }}>
+                                    <span className="flex items-center gap-0.5">
+                                      <MapPin className="w-2.5 h-2.5 text-orange-400" />
+                                      {hotel.distance}
+                                    </span>
+                                    <span className="flex items-center gap-0.5">
+                                      <Car className="w-2.5 h-2.5" />
+                                      {hotel.driveTime}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
 
-              {(activeSuggestion ? suggestionFilteredHotels : filteredHotels).length === 0 ? (
+              {filteredHotels.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-16" style={{ color: 'var(--color-text-secondary)' }}>
                   <MapPin className="w-10 h-10 mb-3" style={{ color: 'var(--color-divider)' }} />
                   <p className="text-sm">No hotels match your filters</p>
@@ -378,7 +461,7 @@ export default function HotelsPage({ headerless = false }: { headerless?: boolea
                   </button>
                 </div>
               ) : (
-                (activeSuggestion ? suggestionFilteredHotels : filteredHotels).map((hotel) => (
+                filteredHotels.map((hotel) => (
                   <HotelCard
                     key={hotel.id}
                     hotel={hotel}
@@ -415,7 +498,7 @@ export default function HotelsPage({ headerless = false }: { headerless?: boolea
                   onHotelSelect={(hotel) => setSelectedHotelId(hotel?.id || null)}
                 />
 
-                {/* Selected hotel info card + Chat input inside map */}
+                {/* Hotel info card + Chat input inside map */}
                 <div className="absolute bottom-4 left-4 right-4 z-[60] hidden md:block">
                   {/* Selected hotel info card — rich preview */}
                   <AnimatePresence>

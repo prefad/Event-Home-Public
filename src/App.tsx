@@ -1,6 +1,7 @@
-import { useEffect } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { BrowserRouter, Routes, Route, useSearchParams, useLocation, Link } from 'react-router-dom';
 import { ChevronDown, Share2, MapPin, Sun, Moon } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { ThemeProvider } from './ThemeContext';
 import { generateTheme, applyTheme, clearInlineTheme } from './utils/generateTheme';
 import { restoreBrandTheme } from './components/BrandColorPopup';
@@ -156,6 +157,8 @@ function PreviewContent() {
 /** Shared layout with persistent header that animates between pages */
 function MainLayout() {
   const location = useLocation();
+  const [navVisible, setNavVisible] = useState(false);
+  const navTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Re-apply brand theme on route change
   useEffect(() => {
@@ -170,29 +173,74 @@ function MainLayout() {
 
   const isHotels = location.pathname === '/hotels';
 
+  const handleHeaderEnter = useCallback(() => {
+    if (navTimeoutRef.current) clearTimeout(navTimeoutRef.current);
+    setNavVisible(true);
+  }, []);
+
+  const handleHeaderLeave = useCallback(() => {
+    navTimeoutRef.current = setTimeout(() => setNavVisible(false), 200);
+  }, []);
+
   return (
     <div className={`${isHotels ? 'h-screen flex flex-col' : 'min-h-screen'}`} style={{ backgroundColor: 'var(--color-page-bg)', transition: 'background-color 0.3s ease' }}>
-      <TopBar />
-      <EventHeader />
-      {isHotels ? (
-        <HotelsPage headerless />
-      ) : (
-        <div
-          className="max-w-[1200px] mx-auto px-12"
-          style={{ transition: 'background-color 0.3s ease' }}
-        >
-          <EventBanner />
-          <TabNavigation />
-          <Routes>
-            <Route path="/" element={<DetailsPage />} />
-            <Route path="/divisions" element={<DivisionsPage />} />
-            <Route path="/rules" element={<DetailsPage />} />
-            <Route path="/payment" element={<DetailsPage />} />
-            <Route path="/accommodations" element={<DetailsPage />} />
-            <Route path="/sponsors" element={<DetailsPage />} />
-          </Routes>
-        </div>
-      )}
+      {/* TopBar + nav: on hotels page, nav hides and slides down on hover */}
+      <div
+        className="relative z-30 shrink-0"
+        onMouseEnter={isHotels ? handleHeaderEnter : undefined}
+        onMouseLeave={isHotels ? handleHeaderLeave : undefined}
+      >
+        <TopBar />
+        {isHotels ? (
+          <div
+            className="absolute left-0 right-0 overflow-hidden"
+            style={{ top: '100%', zIndex: 20, pointerEvents: navVisible ? 'auto' : 'none' }}
+          >
+            <div
+              className="transition-transform duration-300 ease-out"
+              style={{ transform: navVisible ? 'translateY(0)' : 'translateY(-100%)' }}
+            >
+              <EventHeader />
+            </div>
+          </div>
+        ) : (
+          <EventHeader />
+        )}
+      </div>
+      <AnimatePresence mode="wait">
+        {isHotels ? (
+          <motion.div
+            key="hotels"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="flex-1 flex flex-col min-h-0"
+          >
+            <HotelsPage headerless />
+          </motion.div>
+        ) : (
+          <motion.div
+            key="details"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="max-w-[1200px] mx-auto px-12"
+          >
+            <EventBanner />
+            <TabNavigation />
+            <Routes>
+              <Route path="/" element={<DetailsPage />} />
+              <Route path="/divisions" element={<DivisionsPage />} />
+              <Route path="/rules" element={<DetailsPage />} />
+              <Route path="/payment" element={<DetailsPage />} />
+              <Route path="/accommodations" element={<DetailsPage />} />
+              <Route path="/sponsors" element={<DetailsPage />} />
+            </Routes>
+          </motion.div>
+        )}
+      </AnimatePresence>
       <FloatingToolbar />
     </div>
   );
