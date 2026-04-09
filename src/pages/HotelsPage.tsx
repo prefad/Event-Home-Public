@@ -373,11 +373,11 @@ export default function HotelsPage({ headerless = false }: { headerless?: boolea
                     >
                       <div className="pt-3 border-t" style={{ borderColor: 'var(--color-card-border)' }}>
                         <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-1.5">
                             {(() => {
                               const pill = SUGGESTION_PILLS.find((p) => p.label === activeSuggestion);
                               const SuggIcon = pill?.icon;
-                              return SuggIcon ? <SuggIcon className="w-3 h-3" style={{ color: pill?.activeColor }} /> : null;
+                              return SuggIcon ? <SuggIcon className="w-3.5 h-3.5 shrink-0" style={{ color: pill?.activeColor }} /> : null;
                             })()}
                             <span className="text-[13px] font-medium" style={{ color: 'var(--color-text-heading)' }}>{activeSuggestion}</span>
                             <span className="text-[10px] px-1.5 py-0.5 rounded-full" style={{ color: 'var(--color-text-secondary)', backgroundColor: 'var(--color-chip-bg)' }}>{suggestionFilteredHotels.length}</span>
