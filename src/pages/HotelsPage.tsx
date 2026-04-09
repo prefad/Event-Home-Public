@@ -371,7 +371,7 @@ export default function HotelsPage({ headerless = false }: { headerless?: boolea
                       transition={{ duration: 0.25, ease: "easeInOut" }}
                       className="overflow-hidden"
                     >
-                      <div className="pt-3 border-t" style={{ borderColor: 'var(--color-card-border)' }}>
+                      <div className="pt-3">
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-1.5">
                             {(() => {
