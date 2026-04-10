@@ -23,6 +23,7 @@ import { MapPanel } from "./hotels/map-panel";
 import { FilterBar } from "./hotels/filter-bar";
 import { AiChat } from "./hotels/ai-chat";
 import Vector from "./hotels/Vector";
+import Vector16 from "./hotels/Vector-16-985";
 import TopBar from "../components/TopBar";
 import EventHeader from "../components/EventHeader";
 
@@ -248,14 +249,16 @@ export default function HotelsPage({ headerless = false }: { headerless?: boolea
           {/* Hotel list — on mobile: only in list mode; on desktop: always visible as sidebar */}
           <motion.div
             layout
-            className={`md:overflow-y-auto relative rounded-[10px] ${
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className={`relative rounded-[10px] ${activeSuggestion ? 'flex flex-col overflow-hidden' : 'md:overflow-y-auto'} ${
               viewMode === "map"
                 ? "hidden md:block md:w-[640px] md:min-w-[640px]"
                 : "w-full md:w-[640px] md:min-w-[640px]"
             }`}
           >
-            {/* Kayak-style sort/results bar */}
-            <div className="sticky top-0 z-10 px-4 pt-[calc(0.625rem+0.125rem)] pb-3.5 flex items-center justify-between" style={{ backgroundColor: 'var(--color-page-bg)' }}>
+            {/* Kayak-style sort/results bar — hidden when suggestion expanded */}
+            {!activeSuggestion && (
+            <div className="sticky top-0 z-10 px-4 pt-2 pb-3.5 flex items-center justify-between" style={{ backgroundColor: 'var(--color-page-bg)' }}>
               <span className="text-sm" style={{ color: 'var(--color-text-heading)' }}>
                 {filteredHotels.length} results
               </span>
@@ -308,18 +311,15 @@ export default function HotelsPage({ headerless = false }: { headerless?: boolea
                 </div>
               </div>
             </div>
+            )}
 
-            <div className="px-4 pt-0 pb-4 flex flex-col gap-3">
+            <div className={`px-4 pt-0 flex flex-col ${activeSuggestion ? 'flex-1 min-h-0 pb-0' : 'pb-4 gap-3'}`}>
               {/* Top finds pills */}
               <div
-                className="rounded-[10px] px-3 py-2.5 border"
-                style={{ backgroundColor: 'var(--color-card-bg)', borderColor: 'var(--color-card-border)' }}
+                className={`px-3 py-2.5 flex flex-col ${activeSuggestion ? 'flex-1 min-h-0 overflow-hidden rounded-t-[10px]' : 'rounded-[10px]'}`}
+                style={{ backgroundColor: 'var(--color-card-bg)' }}
               >
-                <div className="flex items-center gap-1.5 mb-2">
-                  <Sparkles className="w-3.5 h-3.5" style={{ color: 'var(--color-text-heading)' }} />
-                  <span className="text-sm font-medium whitespace-nowrap" style={{ color: 'var(--color-text-heading)' }}>Top finds</span>
-                </div>
-                <div className="flex gap-2 flex-1 min-w-0 overflow-x-auto scrollbar-hide">
+                <div className="flex gap-2 min-w-0 overflow-x-auto scrollbar-hide shrink-0">
                   {SUGGESTION_PILLS.map((pill) => {
                     const Icon = pill.icon;
                     const isActive = activeSuggestion === pill.label;
@@ -369,9 +369,9 @@ export default function HotelsPage({ headerless = false }: { headerless?: boolea
                       animate={{ height: "auto", opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.25, ease: "easeInOut" }}
-                      className="overflow-hidden"
+                      className="overflow-hidden flex-1 min-h-0"
                     >
-                      <div className="pt-3">
+                      <div className="pt-3 overflow-y-auto max-h-full scrollbar-hide">
                         <div className="flex items-center justify-between mb-2">
                           <div className="flex items-center gap-1.5">
                             {(() => {
@@ -443,13 +443,108 @@ export default function HotelsPage({ headerless = false }: { headerless?: boolea
                             );
                           })}
                         </div>
+                        {/* AI assistant response */}
+                        <div className="flex gap-2 mt-3">
+                          <div className="w-5 h-5 shrink-0 mt-0.5 text-brand">
+                            <Vector16 />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="rounded-xl p-3" style={{ backgroundColor: 'var(--color-chip-bg)' }}>
+                              {activeSuggestion === "Closest hotels to the venue" && (
+                                <>
+                                  <p className="text-[11px] leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
+                                    Here are the <strong style={{ color: 'var(--color-text-heading)' }}>3 closest hotels</strong> to the venue. Quality Suites is walkable at just 0.5 mi — no car needed on game days.
+                                  </p>
+                                  <table className="w-full mt-2 text-[10px]" style={{ color: 'var(--color-text-secondary)' }}>
+                                    <thead>
+                                      <tr style={{ borderBottom: '1px solid var(--color-divider)' }}>
+                                        <th className="text-left pb-1 font-medium" style={{ color: 'var(--color-text-heading)' }}>Hotel</th>
+                                        <th className="text-right pb-1 font-medium" style={{ color: 'var(--color-text-heading)' }}>Distance</th>
+                                        <th className="text-right pb-1 font-medium" style={{ color: 'var(--color-text-heading)' }}>Drive</th>
+                                        <th className="text-right pb-1 font-medium" style={{ color: 'var(--color-text-heading)' }}>Price</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {suggestionFilteredHotels.map((h) => (
+                                        <tr key={h.id} style={{ borderBottom: '1px solid var(--color-divider)' }}>
+                                          <td className="py-1.5 truncate max-w-[120px]">{h.name}</td>
+                                          <td className="py-1.5 text-right">{h.distance}</td>
+                                          <td className="py-1.5 text-right">{h.driveTime}</td>
+                                          <td className="py-1.5 text-right font-medium" style={{ color: 'var(--color-text-heading)' }}>${h.price}</td>
+                                        </tr>
+                                      ))}
+                                    </tbody>
+                                  </table>
+                                  <p className="text-[10px] mt-2" style={{ color: 'var(--color-text-secondary)' }}>
+                                    Tip: Quality Suites is the best pick for walkability. Holiday Inn is the best all-rounder with breakfast and pool included.
+                                  </p>
+                                </>
+                              )}
+                              {activeSuggestion === "Top rated by guests" && (
+                                <>
+                                  <p className="text-[11px] leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
+                                    These hotels all scored <strong style={{ color: 'var(--color-text-heading)' }}>8.5+ guest ratings</strong>. The Waterfront Hotel & Spa leads with a 9.4 — guests love the spa and waterfront views.
+                                  </p>
+                                  <p className="text-[10px] mt-2" style={{ color: 'var(--color-text-secondary)' }}>
+                                    For the best value among top-rated options, Holiday Inn Express offers a 9.2 rating at $235/night with all amenities included.
+                                  </p>
+                                </>
+                              )}
+                              {activeSuggestion === "Best value for my group" && (
+                                <>
+                                  <p className="text-[11px] leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
+                                    Here are the <strong style={{ color: 'var(--color-text-heading)' }}>3 lowest group rates</strong> locked in for the tournament. The Lambton Inn at $140/night is the standout — it's the host hotel with dedicated check-in and dining discounts.
+                                  </p>
+                                  <table className="w-full mt-2 text-[10px]" style={{ color: 'var(--color-text-secondary)' }}>
+                                    <thead>
+                                      <tr style={{ borderBottom: '1px solid var(--color-divider)' }}>
+                                        <th className="text-left pb-1 font-medium" style={{ color: 'var(--color-text-heading)' }}>Hotel</th>
+                                        <th className="text-right pb-1 font-medium" style={{ color: 'var(--color-text-heading)' }}>Rate</th>
+                                        <th className="text-right pb-1 font-medium" style={{ color: 'var(--color-text-heading)' }}>Rating</th>
+                                        <th className="text-right pb-1 font-medium" style={{ color: 'var(--color-text-heading)' }}>Perks</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody>
+                                      {suggestionFilteredHotels.map((h) => (
+                                        <tr key={h.id} style={{ borderBottom: '1px solid var(--color-divider)' }}>
+                                          <td className="py-1.5 truncate max-w-[120px]">{h.name}</td>
+                                          <td className="py-1.5 text-right font-medium" style={{ color: 'var(--color-text-heading)' }}>${h.price}</td>
+                                          <td className="py-1.5 text-right">{h.guestRating}</td>
+                                          <td className="py-1.5 text-right">{h.amenities.length} included</td>
+                                        </tr>
+                                      ))}
+                                    </tbody>
+                                  </table>
+                                </>
+                              )}
+                              {activeSuggestion === "Hotels with pools under $200" && (
+                                <>
+                                  <p className="text-[11px] leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
+                                    {suggestionFilteredHotels.length === 0
+                                      ? "No hotels with pools under $200 are currently available."
+                                      : <>Found <strong style={{ color: 'var(--color-text-heading)' }}>{suggestionFilteredHotels.length} hotel{suggestionFilteredHotels.length !== 1 ? 's' : ''} with pools under $200</strong>. Great for families who want the kids to burn off energy after games.</>
+                                    }
+                                  </p>
+                                  <p className="text-[10px] mt-2" style={{ color: 'var(--color-text-secondary)' }}>
+                                    Both options include free WiFi. The Lambton Inn is the host hotel with extra tournament perks.
+                                  </p>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </motion.div>
                   )}
                 </AnimatePresence>
+
+                {/* Chat input inside Top Finds */}
+                <div className="mt-auto shrink-0 pt-2 rounded-b-[10px] overflow-hidden">
+                  <AiChat overlayOpen={chatOverlayOpen} onOverlayChange={handleChatOverlayChange} />
+                </div>
               </div>
 
-              {filteredHotels.length === 0 ? (
+              {activeSuggestion ? null : filteredHotels.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-16" style={{ color: 'var(--color-text-secondary)' }}>
                   <MapPin className="w-10 h-10 mb-3" style={{ color: 'var(--color-divider)' }} />
                   <p className="text-sm">No hotels match your filters</p>
@@ -474,7 +569,7 @@ export default function HotelsPage({ headerless = false }: { headerless?: boolea
               )}
             </div>
             {/* Spacer for mobile floating chat bar */}
-            <div className="h-20 md:hidden" />
+            {!activeSuggestion && <div className="h-20 md:hidden" />}
           </motion.div>
 
           {/* Map panel — on mobile: only in map mode; on desktop: always visible */}
@@ -520,7 +615,7 @@ export default function HotelsPage({ headerless = false }: { headerless?: boolea
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: 8 }}
                           transition={{ duration: 0.2 }}
-                          className="rounded-t-2xl overflow-hidden"
+                          className="rounded-2xl overflow-hidden"
                           style={{ backgroundColor: 'var(--color-card-bg)' }}
                         >
                           <div className="flex">
@@ -643,36 +738,6 @@ export default function HotelsPage({ headerless = false }: { headerless?: boolea
                       );
                     })()}
                   </AnimatePresence>
-                  {selectedHotelId && !chatOverlayOpen && (() => {
-                    const hotel = hotels.find((h) => h.id === selectedHotelId);
-                    const name = hotel?.name?.split(' ')[0] || 'this hotel';
-                    return (
-                      <>
-                        <div style={{ borderTopWidth: 1, borderTopStyle: 'solid', borderTopColor: 'var(--color-card-border)' }} />
-                        <div className="flex items-center gap-1.5 px-3 pt-3 pb-1 overflow-x-auto scrollbar-hide" style={{ backgroundColor: 'var(--color-card-bg)' }}>
-                          {[
-                            `Late checkout at ${name}?`,
-                            "Group rate details",
-                            "Compare with others",
-                            "Nearby restaurants",
-                          ].map((label) => (
-                            <button
-                              key={label}
-                              className="text-[11px] px-3 py-1.5 rounded-full whitespace-nowrap shrink-0 transition-colors"
-                              style={{ backgroundColor: 'var(--color-chip-bg)', color: 'var(--color-text-secondary)' }}
-                              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-divider)'; e.currentTarget.style.color = 'var(--color-text-heading)'; }}
-                              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-chip-bg)'; e.currentTarget.style.color = 'var(--color-text-secondary)'; }}
-                            >
-                              {label}
-                            </button>
-                          ))}
-                        </div>
-                      </>
-                    );
-                  })()}
-                  <div className={selectedHotelId && !chatOverlayOpen ? '' : 'rounded-t-2xl overflow-hidden'}>
-                    <AiChat overlayOpen={chatOverlayOpen} onOverlayChange={handleChatOverlayChange} />
-                  </div>
                 </div>
               </div>
             )}
