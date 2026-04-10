@@ -16,6 +16,7 @@ import {
   CircleParking,
   Clock,
   Navigation,
+  Send,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { HotelCard } from "./hotels/hotel-card";
@@ -47,7 +48,31 @@ export default function HotelsPage({ headerless = false }: { headerless?: boolea
   const [maxDistance, setMaxDistance] = useState<number | null>(null);
   const [activeSuggestion, setActiveSuggestion] = useState<string | null>(null);
   const [selectedHotelId, setSelectedHotelId] = useState<string | null>(null);
+  const [topFindsMessages, setTopFindsMessages] = useState<{ role: "user" | "assistant"; text: string }[]>([]);
+  const [topFindsInput, setTopFindsInput] = useState("");
+  const [topFindsTyping, setTopFindsTyping] = useState(false);
+  const topFindsEndRef = useRef<HTMLDivElement>(null);
   const headerRef = useRef<HTMLDivElement>(null);
+
+  const handleTopFindsSend = () => {
+    const text = topFindsInput.trim();
+    if (!text) return;
+    setTopFindsMessages((prev) => [...prev, { role: "user", text }]);
+    setTopFindsInput("");
+    setTopFindsTyping(true);
+    setTimeout(() => {
+      const lower = text.toLowerCase();
+      let response = "I can help you find the perfect hotel for the tournament! Try asking about pricing, amenities, or proximity to the venue.";
+      if (lower.includes("pool") || lower.includes("swim")) response = "The Hilton Garden Inn ($189/night) and Best Western Plus ($142/night) both have pools. The Hilton also includes breakfast.";
+      else if (lower.includes("close") || lower.includes("near") || lower.includes("walk")) response = "Quality Suites Downtown is the closest at just 0.5 mi — walkable to the venue. Holiday Inn Express is next at 0.9 mi.";
+      else if (lower.includes("cheap") || lower.includes("budget") || lower.includes("afford")) response = "The best value options are Lambton Inn at $140/night (host hotel with dining discount) and Fairfield Inn at $180/night.";
+      else if (lower.includes("breakfast")) response = "Hotels with complimentary breakfast: Holiday Inn Express ($235), Fairfield Inn ($180), Best Western ($200), and Comfort Inn ($250).";
+      else if (lower.includes("parking")) response = "Free parking is available at Holiday Inn Express, Best Western, Lambton Inn, Quality Suites, Waterfront Hotel, and Point Edward Casino.";
+      setTopFindsMessages((prev) => [...prev, { role: "assistant", text: response }]);
+      setTopFindsTyping(false);
+      setTimeout(() => topFindsEndRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
+    }, 800 + Math.random() * 800);
+  };
 
   useEffect(() => {
     const updateHeaderHeight = () => {
@@ -193,11 +218,15 @@ export default function HotelsPage({ headerless = false }: { headerless?: boolea
   ];
 
   const handleSuggestionClick = (label: string) => {
-    // Switch to new suggestion (don't toggle off — only Clear closes)
-    setActiveSuggestion(label);
-    setSelectedHotelId(null);
-    if (chatOverlayOpen) {
-      setChatOverlayOpen(false);
+    if (activeSuggestion === label) {
+      setActiveSuggestion(null);
+    } else {
+      setActiveSuggestion(label);
+      setTopFindsMessages([]);
+      setSelectedHotelId(null);
+      if (chatOverlayOpen) {
+        setChatOverlayOpen(false);
+      }
     }
   };
 
@@ -427,7 +456,7 @@ export default function HotelsPage({ headerless = false }: { headerless?: boolea
                           })}
                         </div>
                         {/* Divider between hotel cards and AI response */}
-                        <div className="my-4" style={{ borderTopWidth: 1, borderTopStyle: 'solid', borderTopColor: 'var(--color-divider)', width: 'calc(100% + 32px)', marginLeft: '-16px' }} />
+                        <div className="my-5" style={{ borderTopWidth: 1, borderTopStyle: 'solid', borderTopColor: 'var(--color-divider)', width: 'calc(100% + 32px)', marginLeft: '-16px' }} />
                         {/* AI assistant response */}
                         <div className="flex gap-2">
                           <div className="w-6 h-6 shrink-0 mt-0.5 text-brand">
@@ -517,6 +546,41 @@ export default function HotelsPage({ headerless = false }: { headerless?: boolea
                               )}
                             </div>
                           </div>
+                        {/* Inline messages in Top Finds */}
+                        {topFindsMessages.map((msg, i) => (
+                          <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"} mt-3`}>
+                            {msg.role === "assistant" && (
+                              <div className="w-6 h-6 shrink-0 mr-2 mt-0.5 text-brand">
+                                <Vector16 />
+                              </div>
+                            )}
+                            <div
+                              className={`max-w-[80%] px-3.5 py-2.5 rounded-2xl text-[13px] leading-relaxed ${
+                                msg.role === "user" ? "rounded-br-sm" : "rounded-bl-sm shadow-sm"
+                              }`}
+                              style={
+                                msg.role === "user"
+                                  ? { backgroundColor: 'var(--color-chat-user-bg)', color: 'var(--color-chat-user-text)' }
+                                  : { backgroundColor: 'var(--color-chat-assistant-bg)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--color-chat-assistant-border)', color: 'var(--color-chat-assistant-text)' }
+                              }
+                            >
+                              {msg.text}
+                            </div>
+                          </div>
+                        ))}
+                        {topFindsTyping && (
+                          <div className="flex justify-start mt-3">
+                            <div className="w-6 h-6 shrink-0 mr-2 mt-0.5 text-brand">
+                              <Vector16 />
+                            </div>
+                            <div className="px-3.5 py-2.5 rounded-2xl rounded-bl-sm shadow-sm flex items-center gap-1" style={{ backgroundColor: 'var(--color-chat-assistant-bg)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--color-chat-assistant-border)' }}>
+                              <div className="w-1.5 h-1.5 rounded-full animate-bounce [animation-delay:0ms]" style={{ backgroundColor: 'var(--color-text-secondary)' }} />
+                              <div className="w-1.5 h-1.5 rounded-full animate-bounce [animation-delay:150ms]" style={{ backgroundColor: 'var(--color-text-secondary)' }} />
+                              <div className="w-1.5 h-1.5 rounded-full animate-bounce [animation-delay:300ms]" style={{ backgroundColor: 'var(--color-text-secondary)' }} />
+                            </div>
+                          </div>
+                        )}
+                        <div ref={topFindsEndRef} />
                         </div>
                       </div>
                     </motion.div>
@@ -607,8 +671,30 @@ export default function HotelsPage({ headerless = false }: { headerless?: boolea
             </div>
             {/* Chat input pinned to bottom when suggestion active */}
             {activeSuggestion && (
-              <div className="shrink-0 px-4 pt-3 pb-0" style={{ backgroundColor: 'var(--color-page-bg)' }}>
-                <AiChat overlayOpen={chatOverlayOpen} onOverlayChange={handleChatOverlayChange} />
+              <div className="shrink-0 px-4 pt-3 pb-0">
+                <div className="flex items-center gap-2 rounded-2xl pl-2.5 pr-2.5 py-3 transition-all" style={{ backgroundColor: 'var(--color-input-bg)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--color-input-border)' }}>
+                  <div className="w-8 h-8 flex items-center justify-center rounded-full shrink-0" style={{ color: 'var(--color-text-secondary)' }}>
+                    <div className="w-5 h-[22px]">
+                      <Vector />
+                    </div>
+                  </div>
+                  <input
+                    type="text"
+                    placeholder="Ask Booking Assistant anything..."
+                    value={topFindsInput}
+                    onChange={(e) => setTopFindsInput(e.target.value)}
+                    onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleTopFindsSend(); } }}
+                    className="flex-1 bg-transparent text-base placeholder-gray-500 outline-none min-w-0"
+                    style={{ color: 'var(--color-text-heading)' }}
+                  />
+                  <button
+                    onClick={handleTopFindsSend}
+                    className="w-9 h-9 flex items-center justify-center rounded-xl transition-colors shrink-0"
+                    style={{ backgroundColor: 'var(--color-action)', color: 'var(--color-action-text)' }}
+                  >
+                    <Send className="w-3.5 h-3.5" />
+                  </button>
+                </div>
               </div>
             )}
             {/* Spacer for mobile floating chat bar */}
