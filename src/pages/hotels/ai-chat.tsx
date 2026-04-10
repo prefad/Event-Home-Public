@@ -634,7 +634,7 @@ export function AiChat({ variant = "default", overlayOpen, onOverlayChange }: { 
 
         {/* Input bar — always visible */}
         <div className="px-0 pt-0 pb-0">
-          <div className="flex items-center gap-2 rounded-2xl pl-2.5 pr-2.5 py-2 transition-all" style={{ backgroundColor: 'var(--color-input-bg)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--color-input-border)' }}>
+          <div className="flex items-center gap-2 rounded-[10px] pl-2.5 pr-2.5 py-2 transition-all" style={{ backgroundColor: 'var(--color-input-bg)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--color-input-border)' }}>
             <button
               onClick={() => {
                 if (isOverlayOpen) {
@@ -662,23 +662,14 @@ export function AiChat({ variant = "default", overlayOpen, onOverlayChange }: { 
               className="flex-1 bg-transparent text-base placeholder-gray-500 outline-none min-w-0"
               style={{ color: 'var(--color-text-heading)' }}
             />
-            {inputValue.trim() ? (
-              <button
-                onClick={() => handleSend()}
-                className="w-9 h-9 flex items-center justify-center rounded-xl transition-colors shrink-0"
-                    style={{ backgroundColor: 'var(--color-action)', color: 'var(--color-action-text)' }}
-              >
-                <Send className="w-3.5 h-3.5" />
-              </button>
-            ) : (
-              <button
-                onClick={() => handleSend()}
-                className="w-9 h-9 flex items-center justify-center rounded-xl transition-colors shrink-0"
-                style={{ backgroundColor: 'var(--color-action)', color: 'var(--color-action-text)' }}
-              >
-                <Send className="w-3.5 h-3.5" />
-              </button>
-            )}
+            <button
+              onClick={() => handleSend()}
+              disabled={!inputValue.trim()}
+              className="w-9 h-9 flex items-center justify-center rounded-xl transition-all shrink-0 disabled:opacity-30 disabled:cursor-not-allowed"
+              style={{ backgroundColor: inputValue.trim() ? 'var(--color-action)' : 'var(--color-chip-bg)', color: inputValue.trim() ? 'var(--color-action-text)' : 'var(--color-text-secondary)' }}
+            >
+              <Send className="w-3.5 h-3.5" />
+            </button>
           </div>
         </div>
       </div>

@@ -295,7 +295,7 @@ export default function HotelsPage({ headerless = false }: { headerless?: boolea
             <div className="px-4 pt-0 flex flex-col flex-1 min-h-0 overflow-y-auto scrollbar-hide">
               {/* Top Finds block — grows to fill when suggestion active */}
               <motion.div
-                layout
+                layout="position"
                 transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
                 className={`flex flex-col ${activeSuggestion ? 'flex-1 min-h-0 border rounded-[16px] overflow-hidden' : 'rounded-[10px]'}`}
                 style={activeSuggestion ? { borderColor: 'var(--color-divider)' } : undefined}
@@ -612,23 +612,19 @@ export default function HotelsPage({ headerless = false }: { headerless?: boolea
               </div>
               </motion.div>
 
-              {/* Chat input below Top Finds */}
-              <div className="mt-3">
+              {/* Chat input + sort bar — sticky together */}
+              <div className="mt-2 sticky top-0 z-10 pb-2" style={{ backgroundColor: 'var(--color-page-bg)' }}>
                 <AiChat overlayOpen={chatOverlayOpen} onOverlayChange={(open) => {
                   if (open && activeSuggestion) {
                     setActiveSuggestion(null);
                   }
                   handleChatOverlayChange(open);
                 }} />
-              </div>
-
-              {/* Sort/results bar + hotel feed */}
-              {!activeSuggestion && (
-                <div className="flex flex-col gap-3">
-                <div className="sticky top-0 z-10 px-0 pt-3 pb-1.5 flex items-center justify-between" style={{ backgroundColor: 'var(--color-page-bg)' }}>
-                  <span className="text-sm" style={{ color: 'var(--color-text-heading)' }}>
-                    {filteredHotels.length} results
-                  </span>
+                {!activeSuggestion && (
+                  <div className="px-0 pt-4 pb-1 flex items-center justify-between">
+                    <span className="text-sm" style={{ color: 'var(--color-text-heading)' }}>
+                      {filteredHotels.length} results
+                    </span>
                   <div className="flex items-center gap-3">
                     <div className="relative">
                       <button
@@ -676,9 +672,14 @@ export default function HotelsPage({ headerless = false }: { headerless?: boolea
                         )}
                       </AnimatePresence>
                     </div>
+                    </div>
                   </div>
-                </div>
+                )}
+              </div>
 
+              {/* Hotel feed */}
+              {!activeSuggestion && (
+              <div className="flex flex-col gap-3">
               {filteredHotels.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-16" style={{ color: 'var(--color-text-secondary)' }}>
                   <MapPin className="w-10 h-10 mb-3" style={{ color: 'var(--color-divider)' }} />
