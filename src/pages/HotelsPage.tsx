@@ -250,75 +250,50 @@ export default function HotelsPage({ headerless = false }: { headerless?: boolea
           <motion.div
             layout
             transition={{ duration: 0.3, ease: "easeInOut" }}
-            className={`relative rounded-[10px] ${activeSuggestion ? 'flex flex-col overflow-hidden' : 'md:overflow-y-auto'} ${
+            className={`relative rounded-[10px] ${activeSuggestion || chatOverlayOpen ? 'flex flex-col overflow-hidden' : 'md:overflow-y-auto'} ${
               viewMode === "map"
                 ? "hidden md:block md:w-[640px] md:min-w-[640px]"
                 : "w-full md:w-[640px] md:min-w-[640px]"
             }`}
           >
-            {/* Kayak-style sort/results bar — hidden when suggestion expanded */}
-            {!activeSuggestion && (
-            <div className="sticky top-0 z-10 px-4 pt-2 pb-3.5 flex items-center justify-between" style={{ backgroundColor: 'var(--color-page-bg)' }}>
-              <span className="text-sm" style={{ color: 'var(--color-text-heading)' }}>
-                {filteredHotels.length} results
-              </span>
-              <div className="flex items-center gap-3">
-                <div className="relative">
+            {/* Full chat view — replaces sidebar content when open */}
+            {chatOverlayOpen ? (
+              <div className="flex-1 flex flex-col min-h-0">
+                <AiChat overlayOpen={chatOverlayOpen} onOverlayChange={handleChatOverlayChange} />
+              </div>
+            ) : (<>
+            <div className={`${activeSuggestion ? 'flex-1 min-h-0 border rounded-[16px] overflow-hidden mx-4 flex flex-col' : 'px-4 pt-0 flex flex-col pb-0 gap-3'}`} style={activeSuggestion ? { borderColor: 'var(--color-divider)' } : undefined}>
+              {/* Booking Assistant header — inside bordered container */}
+              {activeSuggestion && (
+                <div className="flex items-center justify-between px-4 py-3 border-b shrink-0" style={{ borderColor: 'var(--color-divider)' }}>
+                  <div className="flex items-center gap-2">
+                    <div className="w-7 h-7 shrink-0 text-brand">
+                      <Vector16 />
+                    </div>
+                    <div>
+                      <span className="text-sm" style={{ color: 'var(--color-text-heading)' }}>Booking Assistant</span>
+                      <span className="text-[9px] text-brand bg-brand-light px-1.5 py-0.5 rounded-full ml-2">AI</span>
+                    </div>
+                  </div>
                   <button
-                    onClick={() => setShowSort(!showSort)}
-                    className="flex items-center gap-1.5 text-sm transition-colors"
+                    onClick={() => setActiveSuggestion(null)}
+                    className="w-8 h-8 flex items-center justify-center rounded-[6px] transition-colors"
                     style={{ color: 'var(--color-text-secondary)' }}
                   >
-                    <span className="hidden sm:inline">Sort by{" "}</span>
-                    <span style={{ color: 'var(--color-text-heading)' }}>
-                      {sortOptions.find((s) => s.value === sortBy)?.label}
-                    </span>
-                    <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showSort ? "rotate-180" : ""}`} style={{ color: 'var(--color-text-heading)' }} />
+                    <X className="w-5 h-5" />
                   </button>
-                  <AnimatePresence>
-                    {showSort && (
-                      <>
-                        <div className="fixed inset-0 z-30" onClick={() => setShowSort(false)} />
-                        <motion.div
-                          initial={{ opacity: 0, y: -4 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, y: -4 }}
-                          className="absolute top-full mt-1 right-0 rounded-xl shadow-xl border py-1 z-40 min-w-[200px]"
-                          style={{ backgroundColor: 'var(--color-card-bg)', borderColor: 'var(--color-divider)' }}
-                        >
-                          {sortOptions.map((opt) => (
-                            <button
-                              key={opt.value}
-                              onClick={() => {
-                                setSortBy(opt.value);
-                                setShowSort(false);
-                              }}
-                              className="w-full text-left px-3 py-2 text-xs transition-colors"
-                              style={sortBy === opt.value
-                                ? { color: 'var(--color-action)', backgroundColor: 'var(--color-icon-bg)' }
-                                : { color: 'var(--color-text-primary)' }
-                              }
-                              onMouseEnter={(e) => { if (sortBy !== opt.value) (e.currentTarget.style.backgroundColor = 'var(--color-page-bg)'); }}
-                              onMouseLeave={(e) => { if (sortBy !== opt.value) (e.currentTarget.style.backgroundColor = ''); }}
-                            >
-                              {opt.label}
-                            </button>
-                          ))}
-                        </motion.div>
-                      </>
-                    )}
-                  </AnimatePresence>
                 </div>
-              </div>
-            </div>
-            )}
-
-            <div className={`px-4 pt-0 flex flex-col ${activeSuggestion ? 'flex-1 min-h-0 pb-0' : 'pb-4 gap-3'}`}>
-              {/* Top finds pills */}
+              )}
+              {/* Top finds pills — wrapped in scrollable area when expanded */}
+              <div className={activeSuggestion ? 'flex-1 overflow-y-auto scrollbar-hide px-4 pt-2' : ''}>
               <div
-                className={`px-3 py-2.5 flex flex-col ${activeSuggestion ? 'flex-1 min-h-0 overflow-hidden rounded-t-[10px]' : 'rounded-[10px]'}`}
-                style={{ backgroundColor: 'var(--color-card-bg)' }}
+                className={`flex flex-col rounded-[10px] ${activeSuggestion ? 'px-0 py-2.5' : 'px-4 pt-3 pb-4 border'}`}
+                style={activeSuggestion ? undefined : { borderColor: 'var(--color-card-border)' }}
               >
+                <div className="flex items-center gap-1.5 mb-2">
+                  <Sparkles className="w-3.5 h-3.5" style={{ color: 'var(--color-text-heading)' }} />
+                  <span className="text-sm font-medium whitespace-nowrap" style={{ color: 'var(--color-text-heading)' }}>Top finds</span>
+                </div>
                 <div className="flex gap-2 min-w-0 overflow-x-auto scrollbar-hide shrink-0">
                   {SUGGESTION_PILLS.map((pill) => {
                     const Icon = pill.icon;
@@ -360,8 +335,16 @@ export default function HotelsPage({ headerless = false }: { headerless?: boolea
                     );
                   })}
                 </div>
+              </div>
 
-                {/* Inline results when a suggestion is active */}
+              {/* Chat input below Top Finds — hidden when suggestion active (moves to bottom) */}
+              {!activeSuggestion && (
+                <div className="mt-3">
+                  <AiChat overlayOpen={chatOverlayOpen} onOverlayChange={handleChatOverlayChange} />
+                </div>
+              )}
+
+              {/* Inline results when a suggestion is active — below Top Finds block */}
                 <AnimatePresence>
                   {activeSuggestion && (
                     <motion.div
@@ -443,19 +426,21 @@ export default function HotelsPage({ headerless = false }: { headerless?: boolea
                             );
                           })}
                         </div>
+                        {/* Divider between hotel cards and AI response */}
+                        <div className="my-4" style={{ borderTopWidth: 1, borderTopStyle: 'solid', borderTopColor: 'var(--color-divider)', width: 'calc(100% + 32px)', marginLeft: '-16px' }} />
                         {/* AI assistant response */}
-                        <div className="flex gap-2 mt-3">
-                          <div className="w-5 h-5 shrink-0 mt-0.5 text-brand">
+                        <div className="flex gap-2">
+                          <div className="w-6 h-6 shrink-0 mt-0.5 text-brand">
                             <Vector16 />
                           </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="rounded-xl p-3" style={{ backgroundColor: 'var(--color-chip-bg)' }}>
+                          <div className="max-w-[80%]">
+                            <div className="px-3.5 py-2.5 rounded-2xl rounded-bl-sm shadow-sm text-[13px] leading-relaxed" style={{ backgroundColor: 'var(--color-chat-assistant-bg)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--color-chat-assistant-border)', color: 'var(--color-chat-assistant-text)' }}>
                               {activeSuggestion === "Closest hotels to the venue" && (
                                 <>
-                                  <p className="text-[11px] leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
+                                  <p>
                                     Here are the <strong style={{ color: 'var(--color-text-heading)' }}>3 closest hotels</strong> to the venue. Quality Suites is walkable at just 0.5 mi — no car needed on game days.
                                   </p>
-                                  <table className="w-full mt-2 text-[10px]" style={{ color: 'var(--color-text-secondary)' }}>
+                                  <table className="w-full mt-2 text-[12px]">
                                     <thead>
                                       <tr style={{ borderBottom: '1px solid var(--color-divider)' }}>
                                         <th className="text-left pb-1 font-medium" style={{ color: 'var(--color-text-heading)' }}>Hotel</th>
@@ -465,9 +450,9 @@ export default function HotelsPage({ headerless = false }: { headerless?: boolea
                                       </tr>
                                     </thead>
                                     <tbody>
-                                      {suggestionFilteredHotels.map((h) => (
+                                      {suggestionFilteredHotels.map((h, idx) => (
                                         <tr key={h.id} style={{ borderBottom: '1px solid var(--color-divider)' }}>
-                                          <td className="py-1.5 truncate max-w-[120px]">{h.name}</td>
+                                          <td className="py-1.5 truncate max-w-[120px]">{idx === 0 ? '🥇 ' : idx === 1 ? '🥈 ' : idx === 2 ? '🥉 ' : ''}{h.name}</td>
                                           <td className="py-1.5 text-right">{h.distance}</td>
                                           <td className="py-1.5 text-right">{h.driveTime}</td>
                                           <td className="py-1.5 text-right font-medium" style={{ color: 'var(--color-text-heading)' }}>${h.price}</td>
@@ -475,27 +460,27 @@ export default function HotelsPage({ headerless = false }: { headerless?: boolea
                                       ))}
                                     </tbody>
                                   </table>
-                                  <p className="text-[10px] mt-2" style={{ color: 'var(--color-text-secondary)' }}>
+                                  <p className="mt-2 text-[12px] opacity-70">
                                     Tip: Quality Suites is the best pick for walkability. Holiday Inn is the best all-rounder with breakfast and pool included.
                                   </p>
                                 </>
                               )}
                               {activeSuggestion === "Top rated by guests" && (
                                 <>
-                                  <p className="text-[11px] leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
+                                  <p>
                                     These hotels all scored <strong style={{ color: 'var(--color-text-heading)' }}>8.5+ guest ratings</strong>. The Waterfront Hotel & Spa leads with a 9.4 — guests love the spa and waterfront views.
                                   </p>
-                                  <p className="text-[10px] mt-2" style={{ color: 'var(--color-text-secondary)' }}>
+                                  <p className="mt-2 text-[12px] opacity-70">
                                     For the best value among top-rated options, Holiday Inn Express offers a 9.2 rating at $235/night with all amenities included.
                                   </p>
                                 </>
                               )}
                               {activeSuggestion === "Best value for my group" && (
                                 <>
-                                  <p className="text-[11px] leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
+                                  <p>
                                     Here are the <strong style={{ color: 'var(--color-text-heading)' }}>3 lowest group rates</strong> locked in for the tournament. The Lambton Inn at $140/night is the standout — it's the host hotel with dedicated check-in and dining discounts.
                                   </p>
-                                  <table className="w-full mt-2 text-[10px]" style={{ color: 'var(--color-text-secondary)' }}>
+                                  <table className="w-full mt-2 text-[12px]">
                                     <thead>
                                       <tr style={{ borderBottom: '1px solid var(--color-divider)' }}>
                                         <th className="text-left pb-1 font-medium" style={{ color: 'var(--color-text-heading)' }}>Hotel</th>
@@ -505,9 +490,9 @@ export default function HotelsPage({ headerless = false }: { headerless?: boolea
                                       </tr>
                                     </thead>
                                     <tbody>
-                                      {suggestionFilteredHotels.map((h) => (
+                                      {suggestionFilteredHotels.map((h, idx) => (
                                         <tr key={h.id} style={{ borderBottom: '1px solid var(--color-divider)' }}>
-                                          <td className="py-1.5 truncate max-w-[120px]">{h.name}</td>
+                                          <td className="py-1.5 truncate max-w-[120px]">{idx === 0 ? '🥇 ' : idx === 1 ? '🥈 ' : idx === 2 ? '🥉 ' : ''}{h.name}</td>
                                           <td className="py-1.5 text-right font-medium" style={{ color: 'var(--color-text-heading)' }}>${h.price}</td>
                                           <td className="py-1.5 text-right">{h.guestRating}</td>
                                           <td className="py-1.5 text-right">{h.amenities.length} included</td>
@@ -519,13 +504,13 @@ export default function HotelsPage({ headerless = false }: { headerless?: boolea
                               )}
                               {activeSuggestion === "Hotels with pools under $200" && (
                                 <>
-                                  <p className="text-[11px] leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
+                                  <p>
                                     {suggestionFilteredHotels.length === 0
                                       ? "No hotels with pools under $200 are currently available."
                                       : <>Found <strong style={{ color: 'var(--color-text-heading)' }}>{suggestionFilteredHotels.length} hotel{suggestionFilteredHotels.length !== 1 ? 's' : ''} with pools under $200</strong>. Great for families who want the kids to burn off energy after games.</>
                                     }
                                   </p>
-                                  <p className="text-[10px] mt-2" style={{ color: 'var(--color-text-secondary)' }}>
+                                  <p className="mt-2 text-[12px] opacity-70">
                                     Both options include free WiFi. The Lambton Inn is the host hotel with extra tournament perks.
                                   </p>
                                 </>
@@ -538,11 +523,63 @@ export default function HotelsPage({ headerless = false }: { headerless?: boolea
                   )}
                 </AnimatePresence>
 
-                {/* Chat input inside Top Finds */}
-                <div className="mt-auto shrink-0 pt-2 rounded-b-[10px] overflow-hidden">
-                  <AiChat overlayOpen={chatOverlayOpen} onOverlayChange={handleChatOverlayChange} />
-                </div>
               </div>
+              {/* Sort/results bar — below Top Finds */}
+              {!activeSuggestion && (
+                <div className="sticky top-0 z-10 px-0 pt-3 pb-1.5 flex items-center justify-between" style={{ backgroundColor: 'var(--color-page-bg)' }}>
+                  <span className="text-sm" style={{ color: 'var(--color-text-heading)' }}>
+                    {filteredHotels.length} results
+                  </span>
+                  <div className="flex items-center gap-3">
+                    <div className="relative">
+                      <button
+                        onClick={() => setShowSort(!showSort)}
+                        className="flex items-center gap-1.5 text-sm transition-colors"
+                        style={{ color: 'var(--color-text-secondary)' }}
+                      >
+                        <span className="hidden sm:inline">Sort by{" "}</span>
+                        <span style={{ color: 'var(--color-text-heading)' }}>
+                          {sortOptions.find((s) => s.value === sortBy)?.label}
+                        </span>
+                        <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showSort ? "rotate-180" : ""}`} style={{ color: 'var(--color-text-heading)' }} />
+                      </button>
+                      <AnimatePresence>
+                        {showSort && (
+                          <>
+                            <div className="fixed inset-0 z-30" onClick={() => setShowSort(false)} />
+                            <motion.div
+                              initial={{ opacity: 0, y: -4 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              exit={{ opacity: 0, y: -4 }}
+                              className="absolute top-full mt-1 right-0 rounded-xl shadow-xl border py-1 z-40 min-w-[200px]"
+                              style={{ backgroundColor: 'var(--color-card-bg)', borderColor: 'var(--color-divider)' }}
+                            >
+                              {sortOptions.map((opt) => (
+                                <button
+                                  key={opt.value}
+                                  onClick={() => {
+                                    setSortBy(opt.value);
+                                    setShowSort(false);
+                                  }}
+                                  className="w-full text-left px-3 py-2 text-xs transition-colors"
+                                  style={sortBy === opt.value
+                                    ? { color: 'var(--color-action)', backgroundColor: 'var(--color-icon-bg)' }
+                                    : { color: 'var(--color-text-primary)' }
+                                  }
+                                  onMouseEnter={(e) => { if (sortBy !== opt.value) (e.currentTarget.style.backgroundColor = 'var(--color-page-bg)'); }}
+                                  onMouseLeave={(e) => { if (sortBy !== opt.value) (e.currentTarget.style.backgroundColor = ''); }}
+                                >
+                                  {opt.label}
+                                </button>
+                              ))}
+                            </motion.div>
+                          </>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {activeSuggestion ? null : filteredHotels.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-16" style={{ color: 'var(--color-text-secondary)' }}>
@@ -568,8 +605,16 @@ export default function HotelsPage({ headerless = false }: { headerless?: boolea
                 ))
               )}
             </div>
+            {/* Chat input pinned to bottom when suggestion active */}
+            {activeSuggestion && (
+              <div className="shrink-0 px-4 pt-3 pb-0" style={{ backgroundColor: 'var(--color-page-bg)' }}>
+                <AiChat overlayOpen={chatOverlayOpen} onOverlayChange={handleChatOverlayChange} />
+              </div>
+            )}
             {/* Spacer for mobile floating chat bar */}
             {!activeSuggestion && <div className="h-20 md:hidden" />}
+            </>
+            )}
           </motion.div>
 
           {/* Map panel — on mobile: only in map mode; on desktop: always visible */}
@@ -579,9 +624,7 @@ export default function HotelsPage({ headerless = false }: { headerless?: boolea
               viewMode === "map" ? "block" : "hidden md:flex"
             }`}
           >
-            {/* AI Suggestion pills above map — hidden when chat overlay is open */}
-            {/* Map area — hidden when chat overlay is open */}
-            {!chatOverlayOpen && (
+            {/* Map area — always visible now, chat is in sidebar */}
               <div className="flex-1 relative overflow-hidden rounded-tr-xl">
                 <MapPanel
                   hotels={activeSuggestion ? suggestionFilteredHotels : filteredHotels}
@@ -658,7 +701,7 @@ export default function HotelsPage({ headerless = false }: { headerless?: boolea
 
                               {/* Blurb + amenities */}
                               <div className="p-4 pt-2">
-                                <p className="text-[11px] leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
+                                <p className="text-[12px] leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
                                   "{hotel.blurb}"
                                 </p>
                                 <div className="flex items-center gap-3 mt-2 text-[10px]" style={{ color: 'var(--color-text-secondary)' }}>
@@ -740,14 +783,8 @@ export default function HotelsPage({ headerless = false }: { headerless?: boolea
                   </AnimatePresence>
                 </div>
               </div>
-            )}
 
-            {/* Desktop AI chat — when overlay open, takes flex-1 to fill map area */}
-            {chatOverlayOpen && (
-              <div className="hidden md:flex flex-col flex-1 min-h-0">
-                <AiChat overlayOpen={chatOverlayOpen} onOverlayChange={handleChatOverlayChange} />
-              </div>
-            )}
+            {/* Desktop AI chat overlay removed — chat now lives in sidebar */}
           </motion.div>
         </div>
 

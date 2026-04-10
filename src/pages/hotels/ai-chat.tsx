@@ -208,12 +208,13 @@ export function AiChat({ variant = "default", overlayOpen, onOverlayChange }: { 
 
   const handleSend = (text?: string) => {
     const content = text || inputValue.trim();
-    if (!content) return;
 
-    // Open the overlay when a message is sent from the bottom bar
+    // Always open the overlay when send is clicked
     if (!isOverlayOpen) {
       setIsOverlayOpen(true);
     }
+
+    if (!content) return;
 
     const userMsg: Message = {
       id: Date.now().toString(),
@@ -366,7 +367,7 @@ export function AiChat({ variant = "default", overlayOpen, onOverlayChange }: { 
                   value={inputValue}
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  className="flex-1 bg-transparent text-base placeholder-gray-400 outline-none min-w-0"
+                  className="flex-1 bg-transparent text-base placeholder-gray-500 outline-none min-w-0"
                   style={{ color: 'var(--color-text-heading)' }}
                 />
                 {inputValue.trim() ? (
@@ -406,7 +407,7 @@ export function AiChat({ variant = "default", overlayOpen, onOverlayChange }: { 
               style={{ backgroundColor: 'var(--color-page-bg)' }}
             >
               {/* Chat content card */}
-              <div className="border rounded-[16px] flex flex-col flex-1 overflow-hidden mx-4 mt-1.5 mb-2 min-h-0" style={{ borderColor: 'var(--color-divider)' }}>
+              <div className="border rounded-[16px] flex flex-col flex-1 overflow-hidden mx-4 mt-1.5 mb-0 min-h-0" style={{ borderColor: 'var(--color-divider)' }}>
                 <div className="flex items-center justify-between px-4 py-3 border-b shrink-0" style={{ borderColor: 'var(--color-divider)' }}>
                   <div className="flex items-center gap-2">
                     <div className="w-7 h-7 shrink-0 text-brand">
@@ -459,7 +460,7 @@ export function AiChat({ variant = "default", overlayOpen, onOverlayChange }: { 
               </div>
 
               {/* Overlay input bar */}
-              <div className="px-4 py-3 shrink-0 space-y-2.5" style={{ backgroundColor: 'var(--color-page-bg)' }}>
+              <div className="px-4 pt-3 pb-3 shrink-0 space-y-2.5" style={{ backgroundColor: 'var(--color-page-bg)' }}>
                 <div className="flex items-center gap-2 rounded-2xl pl-2.5 pr-2.5 py-3 transition-all" style={{ backgroundColor: 'var(--color-input-bg)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--color-input-border)' }}>
                   <button
                     onClick={() => setIsOverlayOpen(false)}
@@ -477,7 +478,7 @@ export function AiChat({ variant = "default", overlayOpen, onOverlayChange }: { 
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    className="flex-1 bg-transparent text-base placeholder-gray-400 outline-none min-w-0"
+                    className="flex-1 bg-transparent text-base placeholder-gray-500 outline-none min-w-0"
                     style={{ color: 'var(--color-text-heading)' }}
                   />
                   {inputValue.trim() ? (
@@ -633,7 +634,7 @@ export function AiChat({ variant = "default", overlayOpen, onOverlayChange }: { 
 
         {/* Input bar — always visible */}
         <div className="px-0 pt-0 pb-0">
-          <div className="flex items-center gap-2 rounded-xl pl-2.5 pr-2.5 py-3 transition-all" style={{ backgroundColor: 'var(--color-chip-bg)' }}>
+          <div className="flex items-center gap-2 rounded-2xl pl-2.5 pr-2.5 py-3 transition-all" style={{ backgroundColor: 'var(--color-input-bg)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--color-input-border)' }}>
             <button
               onClick={() => {
                 if (isOverlayOpen) {
@@ -658,7 +659,7 @@ export function AiChat({ variant = "default", overlayOpen, onOverlayChange }: { 
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={handleKeyDown}
-              className="flex-1 bg-transparent text-base placeholder-gray-400 outline-none min-w-0"
+              className="flex-1 bg-transparent text-base placeholder-gray-500 outline-none min-w-0"
               style={{ color: 'var(--color-text-heading)' }}
             />
             {inputValue.trim() ? (

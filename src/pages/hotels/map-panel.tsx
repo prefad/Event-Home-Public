@@ -420,7 +420,7 @@ export function MapPanel({
       </motion.div>
 
       {/* Map controls */}
-      <div className="absolute top-4 right-4 flex flex-col gap-1">
+      <div className="absolute bottom-4 left-4 flex flex-col gap-1">
         <button className="w-9 h-9 rounded-[8px] shadow-md flex items-center justify-center hover:shadow-lg transition-all" style={{ backgroundColor: 'var(--color-card-bg)', color: 'var(--color-text-secondary)' }}>
           <Plus className="w-4 h-4" strokeWidth={2} />
         </button>

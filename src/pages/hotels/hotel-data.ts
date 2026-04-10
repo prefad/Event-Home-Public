@@ -140,7 +140,7 @@ export const hotels: Hotel[] = [
     badges: [],
     mapPosition: { x: 30, y: 40 },
     blurb: "The closest hotel to the venue at just 0.5 mi — walkable on game days. Downtown location means restaurants and shops are steps away.",
-    roomImages: ["https://images.unsplash.com/photo-1585412727339-54e4bae3bbf9?w=400&h=300&fit=crop","https://images.unsplash.com/photo-1560185008-b033106af5c8?w=400&h=300&fit=crop"],
+    roomImages: ["https://images.unsplash.com/photo-1585412727339-54e4bae3bbf9?w=400&h=300&fit=crop","https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=400&h=300&fit=crop","https://images.unsplash.com/photo-1590490360182-c33d57733427?w=400&h=300&fit=crop"],
   },
   {
     id: "8",
