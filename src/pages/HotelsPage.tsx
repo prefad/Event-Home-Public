@@ -187,6 +187,7 @@ export default function HotelsPage({ headerless = false }: { headerless?: boolea
       bgHover: "hover:bg-orange-50",
       iconBg: "bg-orange-500 text-white",
       activeColor: "#f97316",
+      pillBg: "rgba(249,115,22,0.10)",
     },
     {
       icon: Star,
@@ -196,6 +197,7 @@ export default function HotelsPage({ headerless = false }: { headerless?: boolea
       bgHover: "hover:bg-amber-50",
       iconBg: "bg-amber-500 text-white",
       activeColor: "#f59e0b",
+      pillBg: "rgba(245,158,11,0.10)",
     },
     {
       icon: DollarSign,
@@ -205,6 +207,7 @@ export default function HotelsPage({ headerless = false }: { headerless?: boolea
       bgHover: "hover:bg-emerald-50",
       iconBg: "bg-emerald-500 text-white",
       activeColor: "#10b981",
+      pillBg: "rgba(16,185,129,0.10)",
     },
     {
       icon: Waves,
@@ -214,6 +217,7 @@ export default function HotelsPage({ headerless = false }: { headerless?: boolea
       bgHover: "hover:bg-cyan-50",
       iconBg: "bg-cyan-500 text-white",
       activeColor: "#06b6d4",
+      pillBg: "rgba(6,182,212,0.10)",
     },
   ];
 
@@ -355,17 +359,15 @@ export default function HotelsPage({ headerless = false }: { headerless?: boolea
                             : "hover:shadow-md"
                         }`}
                         style={{
-                          backgroundColor: isActive ? 'var(--color-card-bg)' : 'var(--color-chip-bg)',
-                          borderColor: isActive ? pill.activeColor : 'var(--color-card-border)',
+                          backgroundColor: pill.pillBg,
+                          borderColor: isActive ? pill.activeColor : 'transparent',
                         }}
                         onMouseEnter={(e) => {
-                          if (!isActive) {
-                            e.currentTarget.style.borderColor = pill.activeColor;
-                          }
+                          e.currentTarget.style.borderColor = pill.activeColor;
                         }}
                         onMouseLeave={(e) => {
                           if (!isActive) {
-                            e.currentTarget.style.borderColor = 'var(--color-card-border)';
+                            e.currentTarget.style.borderColor = 'transparent';
                           }
                         }}
                       >
