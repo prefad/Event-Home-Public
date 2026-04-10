@@ -461,7 +461,7 @@ export function AiChat({ variant = "default", overlayOpen, onOverlayChange }: { 
 
               {/* Overlay input bar */}
               <div className="px-4 pt-3 pb-3 shrink-0 space-y-2.5" style={{ backgroundColor: 'var(--color-page-bg)' }}>
-                <div className="flex items-center gap-2 rounded-2xl pl-2.5 pr-2.5 py-3 transition-all" style={{ backgroundColor: 'var(--color-input-bg)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--color-input-border)' }}>
+                <div className="flex items-center gap-2 rounded-2xl pl-2.5 pr-2.5 py-2 transition-all" style={{ backgroundColor: 'var(--color-input-bg)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--color-input-border)' }}>
                   <button
                     onClick={() => setIsOverlayOpen(false)}
                     className="w-8 h-8 flex items-center justify-center rounded-full transition-colors shrink-0"
@@ -634,7 +634,7 @@ export function AiChat({ variant = "default", overlayOpen, onOverlayChange }: { 
 
         {/* Input bar — always visible */}
         <div className="px-0 pt-0 pb-0">
-          <div className="flex items-center gap-2 rounded-2xl pl-2.5 pr-2.5 py-3 transition-all" style={{ backgroundColor: 'var(--color-input-bg)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--color-input-border)' }}>
+          <div className="flex items-center gap-2 rounded-2xl pl-2.5 pr-2.5 py-2 transition-all" style={{ backgroundColor: 'var(--color-input-bg)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--color-input-border)' }}>
             <button
               onClick={() => {
                 if (isOverlayOpen) {
