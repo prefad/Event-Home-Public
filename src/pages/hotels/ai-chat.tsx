@@ -633,7 +633,7 @@ export function AiChat({ variant = "default", overlayOpen, onOverlayChange }: { 
 
         {/* Input bar — always visible */}
         <div className="px-0 pt-0 pb-0">
-          <div className="flex items-center gap-2 rounded-2xl pl-2.5 pr-2.5 py-3 transition-all" style={{ backgroundColor: 'var(--color-input-bg)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--color-input-border)' }}>
+          <div className="flex items-center gap-2 rounded-b-2xl pl-2.5 pr-2.5 py-3 transition-all" style={{ backgroundColor: 'var(--color-input-bg)' }}>
             <button
               onClick={() => {
                 if (isOverlayOpen) {

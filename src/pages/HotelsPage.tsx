@@ -499,7 +499,7 @@ export default function HotelsPage({ headerless = false }: { headerless?: boolea
                 />
 
                 {/* Hotel info card + Chat input inside map */}
-                <div className="absolute bottom-4 left-4 right-4 z-[60] hidden md:block">
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 w-[640px] z-[60] hidden md:block">
                   {/* Selected hotel info card — rich preview */}
                   <AnimatePresence>
                     {selectedHotelId && !chatOverlayOpen && (() => {
@@ -512,6 +512,7 @@ export default function HotelsPage({ headerless = false }: { headerless?: boolea
                         pool: { icon: Waves, label: "Pool" },
                       };
                       const ratingLabel = hotel.guestRating >= 9 ? "Exceptional" : hotel.guestRating >= 8.5 ? "Excellent" : hotel.guestRating >= 8 ? "Very Good" : "Good";
+                      const photos = [hotel.image, ...(hotel.roomImages || [])];
                       return (
                         <motion.div
                           key="hotel-info"
@@ -519,118 +520,159 @@ export default function HotelsPage({ headerless = false }: { headerless?: boolea
                           animate={{ opacity: 1, y: 0 }}
                           exit={{ opacity: 0, y: 8 }}
                           transition={{ duration: 0.2 }}
-                          className="rounded-2xl overflow-hidden mb-1"
-                          style={{ backgroundColor: 'var(--color-card-bg)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--color-card-border)' }}
+                          className="rounded-t-2xl overflow-hidden"
+                          style={{ backgroundColor: 'var(--color-card-bg)' }}
                         >
-                          {/* Hero image */}
-                          <div className="relative h-[110px] overflow-hidden">
-                            <img src={hotel.image} alt={hotel.name} className="w-full h-full object-cover" />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-                            {/* Close button */}
-                            <button
-                              onClick={() => setSelectedHotelId(null)}
-                              className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white transition-colors"
-                            >
-                              <X className="w-3.5 h-3.5" />
-                            </button>
-                            {/* Badges on image */}
-                            <div className="absolute top-2 left-2 flex items-center gap-1.5">
-                              {hotel.badges.length > 0 && (
-                                <span className="text-[9px] px-2 py-0.5 rounded-full bg-white/20 text-white backdrop-blur-sm font-medium">
-                                  {hotel.badges[0]}
-                                </span>
-                              )}
-                              {hotel.isHostHotel && (
-                                <span className="text-[9px] px-2 py-0.5 rounded-full bg-purple-500/90 text-white backdrop-blur-sm font-medium flex items-center gap-1">
-                                  <Star className="w-2.5 h-2.5 fill-white" />
-                                  Host Hotel
-                                </span>
-                              )}
-                            </div>
-                            {/* Name + price overlay on image bottom */}
-                            <div className="absolute bottom-2 left-3 right-3 flex items-end justify-between">
-                              <h4 className="text-[14px] font-semibold text-white leading-tight drop-shadow-sm">
-                                {hotel.name}
-                              </h4>
-                              <div className="text-right shrink-0 ml-3">
-                                <span className="text-[16px] font-bold text-white drop-shadow-sm">${hotel.price}</span>
-                                {hotel.originalPrice && (
-                                  <span className="text-[10px] text-white/60 line-through ml-1">${hotel.originalPrice}</span>
-                                )}
-                                <span className="text-[9px] text-white/70 block text-right">/night</span>
+                          <div className="flex">
+                            {/* Left: all content */}
+                            <div className="flex-1 min-w-0">
+                              {/* Header: name, location, rating, close */}
+                              <div className="p-4 pb-2">
+                                <div className="flex items-start justify-between gap-2">
+                                  <div className="min-w-0">
+                                    <h4 className="text-[14px] font-semibold truncate" style={{ color: 'var(--color-text-heading)' }}>
+                                      {hotel.name}
+                                    </h4>
+                                    <div className="flex items-center gap-2 mt-0.5 text-[11px]">
+                                      <span style={{ color: 'var(--color-text-secondary)' }}>{hotel.location}</span>
+                                      {hotel.isHostHotel && (
+                                        <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-purple-500/15 text-purple-400 font-medium flex items-center gap-0.5">
+                                          <Star className="w-2.5 h-2.5 fill-purple-400" />
+                                          Host Hotel
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                  <div className="flex items-center gap-1.5 shrink-0">
+                                    <span className="text-[11px] px-1.5 py-0.5 rounded font-medium bg-emerald-500/15 text-emerald-400">
+                                      {hotel.guestRating}
+                                    </span>
+                                    <span className="text-[10px]" style={{ color: 'var(--color-text-secondary)' }}>{ratingLabel}</span>
+                                  </div>
+                                </div>
                               </div>
-                            </div>
-                          </div>
 
-                          {/* Content */}
-                          <div className="px-3 py-2.5">
-                            {/* Rating + distance row */}
-                            <div className="flex items-center gap-2 text-[11px]">
-                              <span className="px-1.5 py-0.5 rounded font-medium bg-emerald-500/15 text-emerald-400">
-                                {hotel.guestRating}
-                              </span>
-                              <span style={{ color: 'var(--color-text-secondary)' }}>{ratingLabel}</span>
-                              <div className="flex items-center gap-px">
-                                {Array.from({ length: Math.floor(hotel.hotelRating) }).map((_, i) => (
-                                  <Star key={i} className="w-2.5 h-2.5 fill-amber-400 text-amber-400" />
+                              {/* Photo row */}
+                              <div className="flex gap-1.5 px-4">
+                                {photos.map((src, i) => (
+                                  <div key={i} className="flex-1 h-[80px] rounded-lg overflow-hidden min-w-0">
+                                    <img src={src} alt={`${hotel.name} photo ${i + 1}`} className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
+                                  </div>
                                 ))}
                               </div>
-                              <span className="mx-1" style={{ color: 'var(--color-divider)' }}>|</span>
-                              <span className="flex items-center gap-0.5" style={{ color: 'var(--color-text-secondary)' }}>
-                                <MapPin className="w-3 h-3 text-orange-400" />
-                                {hotel.distance}
-                              </span>
-                              <span className="flex items-center gap-0.5" style={{ color: 'var(--color-text-secondary)' }}>
-                                <Car className="w-3 h-3" />
-                                {hotel.driveTime}
-                              </span>
+
+                              {/* Blurb + amenities */}
+                              <div className="p-4 pt-2">
+                                <p className="text-[11px] leading-relaxed" style={{ color: 'var(--color-text-secondary)' }}>
+                                  "{hotel.blurb}"
+                                </p>
+                                <div className="flex items-center gap-3 mt-2 text-[10px]" style={{ color: 'var(--color-text-secondary)' }}>
+                                  <span className="flex items-center gap-1">
+                                    <MapPin className="w-3 h-3 text-orange-400" />
+                                    {hotel.distance}
+                                  </span>
+                                  <span className="flex items-center gap-1">
+                                    <Car className="w-3 h-3" />
+                                    {hotel.driveTime}
+                                  </span>
+                                  <span style={{ color: 'var(--color-divider)' }}>|</span>
+                                  {hotel.amenities.map((amenity) => {
+                                    const info = amenityIcons[amenity];
+                                    if (!info) return null;
+                                    const AmenIcon = info.icon;
+                                    return (
+                                      <span key={amenity} className="flex items-center gap-0.5">
+                                        <AmenIcon className="w-3 h-3" />
+                                        {info.label}
+                                      </span>
+                                    );
+                                  })}
+                                </div>
+                              </div>
                             </div>
 
-                            {/* AI blurb */}
-                            <p className="text-[11px] leading-relaxed mt-2 italic" style={{ color: 'var(--color-text-secondary)' }}>
-                              "{hotel.blurb}"
-                            </p>
-
-                            {/* Amenities + CTA row */}
-                            <div className="flex items-center justify-between mt-2">
-                              <div className="flex items-center gap-1.5">
-                                {hotel.amenities.map((amenity) => {
-                                  const info = amenityIcons[amenity];
-                                  if (!info) return null;
-                                  const AmenIcon = info.icon;
-                                  return (
-                                    <span
-                                      key={amenity}
-                                      className="flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded-md"
-                                      style={{ backgroundColor: 'var(--color-chip-bg)', color: 'var(--color-text-secondary)' }}
-                                    >
-                                      <AmenIcon className="w-2.5 h-2.5" />
-                                      {info.label}
-                                    </span>
-                                  );
-                                })}
-                              </div>
-                              <div className="flex items-center gap-2 shrink-0">
-                                {hotel.roomsLeft && hotel.roomsLeft <= 10 && (
-                                  <span className="text-[9px] text-orange-400 font-medium">
-                                    {hotel.roomsLeft} left
+                            {/* Right price column — full height, matches feed card */}
+                            <div className="shrink-0 flex flex-col items-end w-[160px] my-4 pl-3 pr-4 border-l" style={{ borderColor: 'var(--color-divider)' }}>
+                              <button
+                                onClick={() => setSelectedHotelId(null)}
+                                className="w-6 h-6 flex items-center justify-center rounded-full transition-colors mb-auto -mt-1"
+                                style={{ color: 'var(--color-text-secondary)', backgroundColor: 'var(--color-chip-bg)' }}
+                                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-divider)'; }}
+                                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-chip-bg)'; }}
+                              >
+                                <X className="w-3.5 h-3.5" />
+                              </button>
+                              <div className="text-right leading-tight">
+                                {hotel.badges.length > 0 && (
+                                  <span
+                                    className={`inline-block text-[10px] px-2 py-0.5 rounded-full mb-1 ${
+                                      hotel.badges[0] === "Best deal"
+                                        ? "bg-emerald-50 text-emerald-600"
+                                        : hotel.badges[0] === "Premium" || hotel.badges[0] === "Luxury pick"
+                                        ? "bg-amber-50 text-amber-600"
+                                        : "bg-sky-50 text-sky-600"
+                                    }`}
+                                  >
+                                    {hotel.badges[0]}
                                   </span>
                                 )}
-                                <button
-                                  className="text-[11px] font-medium px-3 py-1.5 rounded-lg transition-colors"
-                                  style={{ backgroundColor: 'var(--color-action)', color: 'var(--color-action-text)' }}
-                                >
-                                  Book Now
-                                </button>
+                                {hotel.originalPrice && (
+                                  <span className="text-xs line-through block" style={{ color: 'var(--color-text-secondary)' }}>
+                                    ${hotel.originalPrice}
+                                  </span>
+                                )}
+                                <span className="text-xl font-medium" style={{ color: 'var(--color-text-heading)' }}>${hotel.price}</span>
+                                <p className="text-[10px] mb-3" style={{ color: 'var(--color-text-secondary)' }}>Average rate</p>
+                                {hotel.roomsLeft && hotel.roomsLeft <= 10 && (
+                                  <p className="text-[9px] text-orange-400 font-medium mb-2">
+                                    {hotel.roomsLeft} rooms left
+                                  </p>
+                                )}
                               </div>
+                              <button
+                                className="w-full px-3 py-2 rounded-[6px] text-xs font-medium text-center transition-all"
+                                style={{ backgroundColor: 'var(--color-action)', color: 'var(--color-action-text)' }}
+                                onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-action-hover)'; }}
+                                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-action)'; }}
+                              >
+                                View Hotel
+                              </button>
                             </div>
                           </div>
                         </motion.div>
                       );
                     })()}
                   </AnimatePresence>
-
-                  <AiChat overlayOpen={chatOverlayOpen} onOverlayChange={handleChatOverlayChange} />
+                  {selectedHotelId && !chatOverlayOpen && (() => {
+                    const hotel = hotels.find((h) => h.id === selectedHotelId);
+                    const name = hotel?.name?.split(' ')[0] || 'this hotel';
+                    return (
+                      <>
+                        <div style={{ borderTopWidth: 1, borderTopStyle: 'solid', borderTopColor: 'var(--color-card-border)' }} />
+                        <div className="flex items-center gap-1.5 px-3 pt-3 pb-1 overflow-x-auto scrollbar-hide" style={{ backgroundColor: 'var(--color-card-bg)' }}>
+                          {[
+                            `Late checkout at ${name}?`,
+                            "Group rate details",
+                            "Compare with others",
+                            "Nearby restaurants",
+                          ].map((label) => (
+                            <button
+                              key={label}
+                              className="text-[11px] px-3 py-1.5 rounded-full whitespace-nowrap shrink-0 transition-colors"
+                              style={{ backgroundColor: 'var(--color-chip-bg)', color: 'var(--color-text-secondary)' }}
+                              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-divider)'; e.currentTarget.style.color = 'var(--color-text-heading)'; }}
+                              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-chip-bg)'; e.currentTarget.style.color = 'var(--color-text-secondary)'; }}
+                            >
+                              {label}
+                            </button>
+                          ))}
+                        </div>
+                      </>
+                    );
+                  })()}
+                  <div className={selectedHotelId && !chatOverlayOpen ? '' : 'rounded-t-2xl overflow-hidden'}>
+                    <AiChat overlayOpen={chatOverlayOpen} onOverlayChange={handleChatOverlayChange} />
+                  </div>
                 </div>
               </div>
             )}

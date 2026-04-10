@@ -16,6 +16,7 @@ export interface Hotel {
   isStaffOnly?: boolean;
   mapPosition: { x: number; y: number };
   blurb: string;
+  roomImages?: string[];
 }
 
 export const hotels: Hotel[] = [
@@ -34,6 +35,7 @@ export const hotels: Hotel[] = [
     badges: ["2 night minimum"],
     mapPosition: { x: 35, y: 25 },
     blurb: "Just 0.9 mi from the venue with breakfast, pool, and parking all included. Great for teams who want everything covered under one rate.",
+    roomImages: ["https://images.unsplash.com/photo-1590490360182-c33d57733427?w=400&h=300&fit=crop","https://images.unsplash.com/photo-1584132967334-10e028bd69f7?w=400&h=300&fit=crop","https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=400&h=300&fit=crop"],
   },
   {
     id: "2",
@@ -51,6 +53,7 @@ export const hotels: Hotel[] = [
     isStaffOnly: true,
     mapPosition: { x: 55, y: 45 },
     blurb: "Staff-reserved conference hotel with on-site meeting rooms. Breakfast, parking, and WiFi included — ideal for tournament organizers and officials.",
+    roomImages: ["https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=400&h=300&fit=crop","https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?w=400&h=300&fit=crop","https://images.unsplash.com/photo-1564078516393-cf04bd966897?w=400&h=300&fit=crop"],
   },
   {
     id: "3",
@@ -69,6 +72,7 @@ export const hotels: Hotel[] = [
     isHostHotel: true,
     mapPosition: { x: 72, y: 55 },
     blurb: "The official tournament hotel — dedicated check-in for teams, 10% dining discount, and complimentary late checkout until 1 PM with your group rate.",
+    roomImages: ["https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=400&h=300&fit=crop","https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=400&h=300&fit=crop","https://images.unsplash.com/photo-1595576508898-0ad5c879a061?w=400&h=300&fit=crop"],
   },
   {
     id: "4",
@@ -85,6 +89,7 @@ export const hotels: Hotel[] = [
     badges: [],
     mapPosition: { x: 45, y: 70 },
     blurb: "Solid mid-range pick with breakfast, pool, and WiFi. The Marriott loyalty points make this a smart choice for frequent travelers.",
+    roomImages: ["https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=400&h=300&fit=crop","https://images.unsplash.com/photo-1521783988139-89397d761dce?w=400&h=300&fit=crop","https://images.unsplash.com/photo-1540518614846-7eded433c457?w=400&h=300&fit=crop"],
   },
   {
     id: "5",
@@ -101,6 +106,7 @@ export const hotels: Hotel[] = [
     badges: ["Premium"],
     mapPosition: { x: 80, y: 20 },
     blurb: "Full casino resort experience with every amenity. Perfect for parents who want entertainment after the kids' games — but book fast, only 5 rooms left.",
+    roomImages: ["https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=400&h=300&fit=crop","https://images.unsplash.com/photo-1591088398332-8a7791972843?w=400&h=300&fit=crop","https://images.unsplash.com/photo-1560448204-603b3fc33ddc?w=400&h=300&fit=crop"],
   },
   {
     id: "6",
@@ -117,6 +123,7 @@ export const hotels: Hotel[] = [
     badges: [],
     mapPosition: { x: 20, y: 60 },
     blurb: "No-frills option with breakfast and WiFi at a reasonable rate. Good for budget-conscious teams who just need a clean room and easy access to the venue.",
+    roomImages: ["https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?w=400&h=300&fit=crop","https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=400&h=300&fit=crop","https://images.unsplash.com/photo-1560185007-cde436f6a4d0?w=400&h=300&fit=crop"],
   },
   {
     id: "7",
@@ -133,6 +140,7 @@ export const hotels: Hotel[] = [
     badges: [],
     mapPosition: { x: 30, y: 40 },
     blurb: "The closest hotel to the venue at just 0.5 mi — walkable on game days. Downtown location means restaurants and shops are steps away.",
+    roomImages: ["https://images.unsplash.com/photo-1585412727339-54e4bae3bbf9?w=400&h=300&fit=crop","https://images.unsplash.com/photo-1560185008-b033106af5c8?w=400&h=300&fit=crop"],
   },
   {
     id: "8",
@@ -149,5 +157,6 @@ export const hotels: Hotel[] = [
     badges: ["Luxury pick"],
     mapPosition: { x: 65, y: 80 },
     blurb: "Top-rated hotel (9.4) with full spa, pool, and waterfront views. Perfect for families making a weekend of the tournament — but only 3 rooms remain.",
+    roomImages: ["https://images.unsplash.com/photo-1602002418082-a4443e081dd1?w=400&h=300&fit=crop","https://images.unsplash.com/photo-1507652313519-d4e9174996dd?w=400&h=300&fit=crop","https://images.unsplash.com/photo-1584132915807-fd1f5fbc078f?w=400&h=300&fit=crop"],
   },
 ];
