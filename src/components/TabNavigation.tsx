@@ -1,4 +1,5 @@
 import { useNavigate, useLocation } from 'react-router-dom';
+import { Button } from '@eventconnect/dec';
 import { useIsPreview } from '../PreviewContext';
 
 const TABS = [
@@ -38,14 +39,9 @@ export default function TabNavigation() {
           );
         })}
       </div>
-      <button
-        className="inline-flex items-center text-sm font-medium px-4 py-2 rounded"
-        style={{ backgroundColor: 'var(--color-cta)', color: 'var(--color-cta-text, var(--color-action-text))' }}
-        onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-cta-hover)'; }}
-        onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-cta)'; }}
-      >
-        New Registration
-      </button>
+      {/* CTA is the only DEC migration on this row — red "destructive" variant
+          maps to the EventConnect registration red across all themes. */}
+      <Button variant="destructive">New Registration</Button>
     </div>
   );
 }

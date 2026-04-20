@@ -1,4 +1,3 @@
-import { useState } from "react";
 import {
   Star,
   MapPin,
@@ -9,10 +8,11 @@ import {
   Waves,
   AlertCircle,
   Trophy,
-  Heart,
+  MessageCircle,
   Shield,
 } from "lucide-react";
 import { motion } from "motion/react";
+import { Button } from "@eventconnect/dec";
 import { Hotel } from "./hotel-data";
 import { ImageWithFallback } from "./ImageWithFallback";
 
@@ -50,21 +50,20 @@ export function HotelCard({
   onHover,
   onLeave,
   onClick,
+  onDiscuss,
 }: {
   hotel: Hotel;
   isActive: boolean;
   onHover: () => void;
   onLeave: () => void;
   onClick: () => void;
+  /** Open the Booking Assistant scoped to this hotel. */
+  onDiscuss?: (hotel: Hotel) => void;
 }) {
-  const [liked, setLiked] = useState(false);
-
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
+      transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
       onClick={onClick}
       style={{
         backgroundColor: 'var(--color-card-bg)',
@@ -100,16 +99,28 @@ export function HotelCard({
           <button
             onClick={(e) => {
               e.stopPropagation();
-              setLiked(!liked);
+              onDiscuss?.(hotel);
             }}
-            style={{ backgroundColor: 'var(--color-card-bg)', opacity: 0.8 }}
-            className="absolute top-2 right-2 w-7 h-7 flex items-center justify-center rounded-full backdrop-blur-sm hover:opacity-100 transition-colors"
+            style={{
+              backgroundColor: 'var(--color-card-bg)',
+              opacity: 0.8,
+              transition: 'background-color 180ms ease, opacity 180ms ease, transform 180ms ease',
+            }}
+            className="group/discuss absolute top-2 right-2 w-7 h-7 flex items-center justify-center rounded-full backdrop-blur-sm"
+            title="Discuss this hotel with Booking Assistant"
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'var(--color-action)';
+              e.currentTarget.style.opacity = '1';
+              e.currentTarget.style.transform = 'scale(1.08)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'var(--color-card-bg)';
+              e.currentTarget.style.opacity = '0.8';
+              e.currentTarget.style.transform = 'scale(1)';
+            }}
           >
-            <Heart
-              className={`w-3.5 h-3.5 transition-colors ${
-                liked ? "fill-red-500 text-red-500" : ""
-              }`}
-              {...(!liked ? { style: { color: 'var(--color-text-primary)' } } : {})}
+            <MessageCircle
+              className="w-3.5 h-3.5 transition-colors text-[color:var(--color-text-primary)] group-hover/discuss:!text-white"
             />
           </button>
         </div>
@@ -187,10 +198,10 @@ export function HotelCard({
               <span
                 className={`inline-block text-[10px] px-2 py-0.5 rounded-full mb-1 ${
                   hotel.badges[0] === "Best deal"
-                    ? "bg-emerald-50 text-emerald-600"
+                    ? "hotel-badge-deal"
                     : hotel.badges[0] === "Premium" || hotel.badges[0] === "Luxury pick"
-                    ? "bg-amber-50 text-amber-600"
-                    : "bg-sky-50 text-sky-600"
+                    ? "hotel-badge-premium"
+                    : "hotel-badge-host"
                 }`}
               >
                 {hotel.badges[0]}
@@ -204,17 +215,14 @@ export function HotelCard({
             <span className="text-xl font-medium" style={{ color: 'var(--color-text-heading)' }}>${hotel.price}</span>
             <p className="text-[10px] mb-3" style={{ color: 'var(--color-text-secondary)' }}>Average rate</p>
           </div>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-            }}
-            className="w-full px-3 py-2 rounded-[6px] text-xs font-medium text-center transition-all text-white mb-0.5"
-            style={{ backgroundColor: 'var(--color-action)', color: 'var(--color-action-text)' }}
-            onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-action-hover)'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-action)'; }}
+          <Button
+            onClick={(e) => e.stopPropagation()}
+            variant="destructive"
+            size="sm"
+            className="w-full mb-0.5"
           >
             View Hotel
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -230,16 +238,28 @@ export function HotelCard({
           <button
             onClick={(e) => {
               e.stopPropagation();
-              setLiked(!liked);
+              onDiscuss?.(hotel);
             }}
-            style={{ backgroundColor: 'var(--color-card-bg)', opacity: 0.8 }}
-            className="absolute top-2.5 right-2.5 w-8 h-8 flex items-center justify-center rounded-full backdrop-blur-sm hover:opacity-100 transition-colors"
+            style={{
+              backgroundColor: 'var(--color-card-bg)',
+              opacity: 0.8,
+              transition: 'background-color 180ms ease, opacity 180ms ease, transform 180ms ease',
+            }}
+            className="group/discuss absolute top-2.5 right-2.5 w-8 h-8 flex items-center justify-center rounded-full backdrop-blur-sm"
+            title="Discuss this hotel with Booking Assistant"
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = 'var(--color-action)';
+              e.currentTarget.style.opacity = '1';
+              e.currentTarget.style.transform = 'scale(1.08)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = 'var(--color-card-bg)';
+              e.currentTarget.style.opacity = '0.8';
+              e.currentTarget.style.transform = 'scale(1)';
+            }}
           >
-            <Heart
-              className={`w-4 h-4 transition-colors ${
-                liked ? "fill-red-500 text-red-500" : ""
-              }`}
-              {...(!liked ? { style: { color: 'var(--color-text-primary)' } } : {})}
+            <MessageCircle
+              className="w-4 h-4 transition-colors text-[color:var(--color-text-primary)] group-hover/discuss:!text-white"
             />
           </button>
         </div>
@@ -311,10 +331,10 @@ export function HotelCard({
                 <span
                   className={`inline-block text-[10px] px-2 py-0.5 rounded-full mb-1 ${
                     hotel.badges[0] === "Best deal"
-                      ? "bg-emerald-50 text-emerald-600"
+                      ? "hotel-badge-deal"
                       : hotel.badges[0] === "Premium" || hotel.badges[0] === "Luxury pick"
-                      ? "bg-amber-50 text-amber-600"
-                      : "bg-sky-50 text-sky-600"
+                      ? "hotel-badge-premium"
+                      : "hotel-badge-host"
                   }`}
                 >
                   {hotel.badges[0]}
@@ -328,17 +348,13 @@ export function HotelCard({
               <span className="text-xl font-medium" style={{ color: 'var(--color-text-heading)' }}>${hotel.price}</span>
               <p className="text-[10px]" style={{ color: 'var(--color-text-secondary)' }}>Average rate</p>
             </div>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-              }}
-              className="px-5 py-2.5 rounded-[6px] text-xs text-center transition-all text-white"
-              style={{ backgroundColor: 'var(--color-action)', color: 'var(--color-action-text)' }}
-              onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-action-hover)'; }}
-              onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-action)'; }}
+            <Button
+              onClick={(e) => e.stopPropagation()}
+              variant="destructive"
+              size="sm"
             >
               View Hotel
-            </button>
+            </Button>
           </div>
         </div>
       </div>

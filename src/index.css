@@ -1,24 +1,55 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+/* Cascade layer order (low → high priority). Anything unlayered beats all
+   layered rules. DEC ships its CSS inside @layer base/utilities (Tailwind v4
+   build), so we wrap our own Tailwind v3 directives in layers at a LOWER
+   priority than DEC's utilities. Otherwise Tailwind v3 preflight's unlayered
+   `button { background-color: transparent }` clobbers DEC's `.bg-primary`. */
+@layer app-reset, tw-base, tw-components, dec-utilities, tw-utilities, app;
 
+@layer tw-base {
+  @tailwind base;
+}
+@layer tw-components {
+  @tailwind components;
+}
+@layer tw-utilities {
+  @tailwind utilities;
+}
+
+/* Cera Pro bundled from public/fonts. `local()` first so anyone with the
+   font installed gets the system copy (no download), then `url()` as the
+   fallback for everyone else. `font-display: swap` avoids invisible text
+   during the short file download. */
+@font-face {
+  font-family: 'Cera Pro';
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+  src: local('CeraPro-Light'), local('Cera Pro Light'),
+       url('/fonts/CeraPro-Light.ttf') format('truetype');
+}
 @font-face {
   font-family: 'Cera Pro';
   font-weight: 400;
   font-style: normal;
-  src: local('Cera Pro Regular'), local('CeraPro-Regular');
+  font-display: swap;
+  src: local('CeraPro-Regular'), local('Cera Pro Regular'), local('Cera Pro'),
+       url('/fonts/CeraPro-Regular.ttf') format('truetype');
 }
 @font-face {
   font-family: 'Cera Pro';
   font-weight: 500;
   font-style: normal;
-  src: local('Cera Pro Medium'), local('CeraPro-Medium');
+  font-display: swap;
+  src: local('CeraPro-Medium'), local('Cera Pro Medium'),
+       url('/fonts/CeraPro-Medium.ttf') format('truetype');
 }
 @font-face {
   font-family: 'Cera Pro';
   font-weight: 700;
   font-style: normal;
-  src: local('Cera Pro Bold'), local('CeraPro-Bold');
+  font-display: swap;
+  src: local('CeraPro-Bold'), local('Cera Pro Bold'),
+       url('/fonts/CeraPro-Bold.ttf') format('truetype');
 }
 
 /* ===== MOCKUP A: Dark Immersive ===== */
@@ -89,6 +120,13 @@
   --color-avatar-bg: #2b70b6;
   --color-status-dot: #5ba3e0;
   --color-gold: #b59960;
+  /* Hotel list badges — tinted-on-dark variants */
+  --color-badge-deal-bg: rgba(16, 185, 129, 0.14);
+  --color-badge-deal-text: #34d399;
+  --color-badge-premium-bg: rgba(245, 158, 11, 0.14);
+  --color-badge-premium-text: #fbbf24;
+  --color-badge-host-bg: rgba(14, 165, 233, 0.14);
+  --color-badge-host-text: #38bdf8;
 }
 
 /* ===== MOCKUP B: Light Branded ===== */
@@ -158,6 +196,13 @@
   --color-avatar-bg: #2b70b6;
   --color-status-dot: #2b70b6;
   --color-gold: #b59960;
+  /* Hotel list badges — soft pastel tints for light mode */
+  --color-badge-deal-bg: #ecfdf5;
+  --color-badge-deal-text: #059669;
+  --color-badge-premium-bg: #fffbeb;
+  --color-badge-premium-text: #d97706;
+  --color-badge-host-bg: #f0f9ff;
+  --color-badge-host-text: #0284c7;
 }
 
 /* ===== MOCKUP C: Bold Black ===== */
@@ -227,6 +272,13 @@
   --color-avatar-bg: #b92b30;
   --color-status-dot: #e85358;
   --color-gold: #b59960;
+  /* Hotel list badges — tinted-on-dark variants */
+  --color-badge-deal-bg: rgba(16, 185, 129, 0.14);
+  --color-badge-deal-text: #34d399;
+  --color-badge-premium-bg: rgba(245, 158, 11, 0.14);
+  --color-badge-premium-text: #fbbf24;
+  --color-badge-host-bg: rgba(14, 165, 233, 0.14);
+  --color-badge-host-text: #38bdf8;
 }
 
 body {
@@ -239,9 +291,21 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-@layer base {
-  button {
-    all: unset;
+/* Legacy button reset. Targeted — strips browser chrome (border, padding,
+   background, appearance) without obliterating Tailwind utilities like
+   w-*, h-*, flex, etc. the way `all: unset` did. Excludes DEC buttons
+   (identified by data-slot / data-dec) so they retain their design-system
+   styling. */
+@layer app-reset {
+  button:not([data-slot]):not([data-dec]) {
+    appearance: none;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    color: inherit;
+    text-align: inherit;
     cursor: pointer;
     box-sizing: border-box;
   }
@@ -254,3 +318,10 @@ body {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+/* Hotel list badges — background + text driven by theme tokens so dark
+   mode gets its own tinted variants instead of hardcoded bg-emerald-50
+   etc. which were washed-out on a dark page. */
+.hotel-badge-deal    { background-color: var(--color-badge-deal-bg);    color: var(--color-badge-deal-text); }
+.hotel-badge-premium { background-color: var(--color-badge-premium-bg); color: var(--color-badge-premium-text); }
+.hotel-badge-host    { background-color: var(--color-badge-host-bg);    color: var(--color-badge-host-text); }

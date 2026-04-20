@@ -1,35 +1,17 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo, useCallback, memo } from "react";
 import { motion, AnimatePresence } from "motion/react";
-import {
-  Plus,
-  Send,
-  X,
-  Sparkles,
-  Hotel,
-  MapPin,
-  DollarSign,
-  ChevronDown,
-  ChevronUp,
-  Star,
-} from "lucide-react";
+import { Send, X, Star } from "lucide-react";
 import Vector from "./Vector";
 import Vector16 from "./Vector-16-985";
-const ecLogo = "";
 import { hotels as hotelData } from "./hotel-data";
 
-interface Message {
+export interface Message {
   id: string;
   role: "user" | "assistant";
   content: string;
   timestamp: Date;
   hotelIds?: string[];
 }
-
-const SUGGESTIONS = [
-  { icon: Hotel, label: "Hotels with pools under $200" },
-  { icon: MapPin, label: "Closest hotels to the venue" },
-  { icon: DollarSign, label: "Best value for my group" },
-];
 
 const MOCK_RESPONSES: Record<string, { text: string; hotelIds?: string[] }> = {
   default: {
@@ -119,7 +101,7 @@ function getResponse(input: string): { text: string; hotelIds?: string[] } {
   return MOCK_RESPONSES.default;
 }
 
-function StarRating({ rating }: { rating: number }) {
+const StarRating = memo(function StarRating({ rating }: { rating: number }) {
   const fullStars = Math.floor(rating);
   const halfStar = rating % 1 >= 0.5;
   const emptyStars = 5 - fullStars - (halfStar ? 1 : 0);
@@ -141,9 +123,9 @@ function StarRating({ rating }: { rating: number }) {
       ))}
     </div>
   );
-}
+});
 
-function ChatHotelCard({ hotelId }: { hotelId: string }) {
+const ChatHotelCard = memo(function ChatHotelCard({ hotelId }: { hotelId: string }) {
   const hotel = hotelData.find((h) => h.id === hotelId);
   if (!hotel) return null;
   return (
@@ -167,119 +149,68 @@ function ChatHotelCard({ hotelId }: { hotelId: string }) {
       </div>
     </div>
   );
+});
+
+// Shared styles for typing dots / message bubbles
+const TYPING_DOT_STYLE = { backgroundColor: 'var(--color-text-secondary)' } as const;
+const BUBBLE_CONTAINER_STYLE = {
+  backgroundColor: 'var(--color-chat-assistant-bg)',
+} as const;
+const USER_BUBBLE_STYLE = { backgroundColor: '#ffffff', color: '#000000' } as const;
+const ASSISTANT_BUBBLE_STYLE = { ...BUBBLE_CONTAINER_STYLE, color: 'var(--color-chat-assistant-text)' } as const;
+
+// Parse **bold** markdown into [text, isBold] tuples per line, only once per message content.
+// Cached keyed on content string to avoid re-parsing identical strings.
+const markdownCache = new Map<string, Array<Array<[string, boolean]>>>();
+function parseMarkdown(content: string): Array<Array<[string, boolean]>> {
+  const hit = markdownCache.get(content);
+  if (hit) return hit;
+  const lines = content.split("\n").map((line) =>
+    line.split(/(\*\*.*?\*\*)/).map(
+      (part) =>
+        [part.startsWith("**") && part.endsWith("**") ? part.slice(2, -2) : part, part.startsWith("**") && part.endsWith("**")] as [string, boolean]
+    )
+  );
+  markdownCache.set(content, lines);
+  return lines;
 }
 
-export function AiChat({ variant = "default", overlayOpen, onOverlayChange }: { variant?: "default" | "mobile-float"; overlayOpen?: boolean; onOverlayChange?: (open: boolean) => void }) {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const [_isOverlayOpen, _setIsOverlayOpen] = useState(false);
-  const isOverlayOpen = overlayOpen !== undefined ? overlayOpen : _isOverlayOpen;
-  const setIsOverlayOpen = (open: boolean) => {
-    if (onOverlayChange) onOverlayChange(open);
-    _setIsOverlayOpen(open);
-  };
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [inputValue, setInputValue] = useState("");
-  const [isTyping, setIsTyping] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const overlayInputRef = useRef<HTMLInputElement>(null);
-  const overlayMessagesEndRef = useRef<HTMLDivElement>(null);
+function TypingDots() {
+  return (
+    <div className="px-3.5 py-2.5 rounded-2xl rounded-bl-sm shadow-sm flex items-center gap-1" style={BUBBLE_CONTAINER_STYLE}>
+      <div className="w-1.5 h-1.5 rounded-full animate-bounce [animation-delay:0ms]" style={TYPING_DOT_STYLE} />
+      <div className="w-1.5 h-1.5 rounded-full animate-bounce [animation-delay:150ms]" style={TYPING_DOT_STYLE} />
+      <div className="w-1.5 h-1.5 rounded-full animate-bounce [animation-delay:300ms]" style={TYPING_DOT_STYLE} />
+    </div>
+  );
+}
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, isTyping]);
-
-  useEffect(() => {
-    if (isOverlayOpen) {
-      setTimeout(() => {
-        overlayMessagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-        overlayInputRef.current?.focus();
-      }, 300);
-    }
-  }, [isOverlayOpen]);
-
-  useEffect(() => {
-    if (isOverlayOpen) {
-      overlayMessagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }
-  }, [messages, isTyping, isOverlayOpen]);
-
-  // Auto-send removed — suggestion pills now show hotel strip instead of chat
-
-  const handleSend = (text?: string) => {
-    const content = text || inputValue.trim();
-
-    // Always open the overlay when send is clicked
-    if (!isOverlayOpen) {
-      setIsOverlayOpen(true);
-    }
-
-    if (!content) return;
-
-    const userMsg: Message = {
-      id: Date.now().toString(),
-      role: "user",
-      content,
-      timestamp: new Date(),
-    };
-
-    setMessages((prev) => [...prev, userMsg]);
-    setInputValue("");
-    setIsTyping(true);
-
-    setTimeout(() => {
-      const response: Message = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content: getResponse(content).text,
-        timestamp: new Date(),
-        hotelIds: getResponse(content).hotelIds,
-      };
-      setMessages((prev) => [...prev, response]);
-      setIsTyping(false);
-    }, 800 + Math.random() * 1200);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
-  };
-
-  const handleSuggestion = (label: string) => {
-    if (!isExpanded) setIsExpanded(true);
-    setTimeout(() => handleSend(label), 100);
-  };
-
-  const allOverlayMessages = [...PREFILLED_MESSAGES, ...messages];
-
-  const renderMessageContent = (msg: Message, maxW: string = "max-w-[85%]") => (
+function MessageBubble({ msg, maxW }: { msg: Message; maxW: string }) {
+  const isUser = msg.role === "user";
+  const lines = useMemo(() => parseMarkdown(msg.content), [msg.content]);
+  return (
     <div className={`${maxW} space-y-2`}>
       <div
         className={`px-3.5 py-2.5 rounded-2xl text-[13px] leading-relaxed ${
-          msg.role === "user"
-            ? "rounded-br-sm"
-            : "rounded-bl-sm shadow-sm"
+          isUser ? "rounded-br-sm" : "rounded-bl-sm shadow-sm"
         }`}
-        style={
-          msg.role === "user"
-            ? { backgroundColor: 'var(--color-chat-user-bg)', color: 'var(--color-chat-user-text)' }
-            : { backgroundColor: 'var(--color-chat-assistant-bg)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--color-chat-assistant-border)', color: 'var(--color-chat-assistant-text)' }
-        }
+        style={isUser ? USER_BUBBLE_STYLE : ASSISTANT_BUBBLE_STYLE}
       >
-        {msg.content.split("\n").map((line, i) => (
+        {lines.map((line, i) => (
           <span key={i}>
-            {line.split(/(\*\*.*?\*\*)/).map((part, j) =>
-              part.startsWith("**") && part.endsWith("**") ? (
-                <strong key={j} style={{ color: msg.role === "user" ? 'var(--color-chat-user-text)' : 'var(--color-text-heading)' }}>
-                  {part.slice(2, -2)}
+            {line.map(([text, isBold], j) =>
+              isBold ? (
+                <strong
+                  key={j}
+                  style={{ color: isUser ? '#000000' : 'var(--color-text-heading)' }}
+                >
+                  {text}
                 </strong>
               ) : (
-                part
+                <span key={j}>{text}</span>
               )
             )}
-            {i < msg.content.split("\n").length - 1 && <br />}
+            {i < lines.length - 1 && <br />}
           </span>
         ))}
       </div>
@@ -292,6 +223,126 @@ export function AiChat({ variant = "default", overlayOpen, onOverlayChange }: { 
       )}
     </div>
   );
+}
+
+export function AiChat({
+  variant = "default",
+  overlayOpen,
+  onOverlayChange,
+  messages: messagesProp,
+  onMessagesChange,
+  inputValue: inputValueProp,
+  onInputValueChange,
+  isTyping: isTypingProp,
+  onIsTypingChange,
+}: {
+  variant?: "default" | "mobile-float";
+  overlayOpen?: boolean;
+  onOverlayChange?: (open: boolean) => void;
+  messages?: Message[];
+  onMessagesChange?: React.Dispatch<React.SetStateAction<Message[]>>;
+  inputValue?: string;
+  onInputValueChange?: React.Dispatch<React.SetStateAction<string>>;
+  isTyping?: boolean;
+  onIsTypingChange?: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
+  const [_isOverlayOpen, _setIsOverlayOpen] = useState(false);
+  const isOverlayOpen = overlayOpen !== undefined ? overlayOpen : _isOverlayOpen;
+  const setIsOverlayOpen = useCallback(
+    (open: boolean) => {
+      onOverlayChange?.(open);
+      _setIsOverlayOpen(open);
+    },
+    [onOverlayChange]
+  );
+  // Controlled/uncontrolled: parent can lift state so it survives remounts between
+  // the bottom-bar and full-overlay positions.
+  const [_messages, _setMessages] = useState<Message[]>([]);
+  const [_inputValue, _setInputValue] = useState("");
+  const [_isTyping, _setIsTyping] = useState(false);
+  const messages = messagesProp ?? _messages;
+  const setMessages = onMessagesChange ?? _setMessages;
+  const inputValue = inputValueProp ?? _inputValue;
+  const setInputValue = onInputValueChange ?? _setInputValue;
+  const isTyping = isTypingProp ?? _isTyping;
+  const setIsTyping = onIsTypingChange ?? _setIsTyping;
+  const overlayInputRef = useRef<HTMLInputElement>(null);
+  const overlayMessagesEndRef = useRef<HTMLDivElement>(null);
+
+  // Focus input + scroll to bottom after overlay opens
+  useEffect(() => {
+    if (!isOverlayOpen) return;
+    const t = setTimeout(() => {
+      overlayMessagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+      overlayInputRef.current?.focus();
+    }, 300);
+    return () => clearTimeout(t);
+  }, [isOverlayOpen]);
+
+  // Auto-scroll on new messages while overlay is open
+  useEffect(() => {
+    if (isOverlayOpen) {
+      overlayMessagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages, isTyping, isOverlayOpen]);
+
+  const handleSend = useCallback(() => {
+    const content = inputValue.trim();
+    if (!content) return;
+
+    // Always open the overlay when send is clicked
+    setIsOverlayOpen(true);
+
+    const now = Date.now();
+    const userMsg: Message = {
+      id: now.toString(),
+      role: "user",
+      content,
+      timestamp: new Date(now),
+    };
+    setMessages((prev) => [...prev, userMsg]);
+    setInputValue("");
+    setIsTyping(true);
+
+    setTimeout(() => {
+      const response = getResponse(content);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: (Date.now() + 1).toString(),
+          role: "assistant",
+          content: response.text,
+          timestamp: new Date(),
+          hotelIds: response.hotelIds,
+        },
+      ]);
+      setIsTyping(false);
+    }, 800 + Math.random() * 1200);
+  }, [inputValue, setIsOverlayOpen, setMessages, setInputValue, setIsTyping]);
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        handleSend();
+      }
+    },
+    [handleSend]
+  );
+
+  const handleInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => setInputValue(e.target.value),
+    []
+  );
+
+  const handleCloseOverlay = useCallback(() => setIsOverlayOpen(false), [setIsOverlayOpen]);
+
+  const allOverlayMessages = useMemo(
+    () => [...PREFILLED_MESSAGES, ...messages],
+    [messages]
+  );
+
+  const hasInput = inputValue.trim().length > 0;
 
   return (
     <>
@@ -338,7 +389,7 @@ export function AiChat({ variant = "default", overlayOpen, onOverlayChange }: { 
                       <Vector16 />
                     </div>
                   )}
-                  {renderMessageContent(msg)}
+                  <MessageBubble msg={msg} maxW="max-w-[85%]" />
                 </div>
               ))}
 
@@ -347,11 +398,7 @@ export function AiChat({ variant = "default", overlayOpen, onOverlayChange }: { 
                   <div className="w-6 h-6 shrink-0 mr-2 mt-0.5 text-brand">
                     <Vector16 />
                   </div>
-                  <div className="px-3.5 py-2.5 rounded-2xl rounded-bl-sm shadow-sm flex items-center gap-1" style={{ backgroundColor: 'var(--color-chat-assistant-bg)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--color-chat-assistant-border)' }}>
-                    <div className="w-1.5 h-1.5 rounded-full animate-bounce [animation-delay:0ms]" style={{ backgroundColor: 'var(--color-text-secondary)' }} />
-                    <div className="w-1.5 h-1.5 rounded-full animate-bounce [animation-delay:150ms]" style={{ backgroundColor: 'var(--color-text-secondary)' }} />
-                    <div className="w-1.5 h-1.5 rounded-full animate-bounce [animation-delay:300ms]" style={{ backgroundColor: 'var(--color-text-secondary)' }} />
-                  </div>
+                  <TypingDots />
                 </div>
               )}
               <div ref={overlayMessagesEndRef} />
@@ -359,34 +406,25 @@ export function AiChat({ variant = "default", overlayOpen, onOverlayChange }: { 
 
             {/* Overlay input bar */}
             <div className="px-4 py-3 shrink-0 space-y-2.5" style={{ backgroundColor: 'var(--color-page-bg)' }}>
-              <div className="flex items-center gap-2 rounded-2xl pl-3 pr-2.5 py-3 transition-all" style={{ backgroundColor: 'var(--color-input-bg)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--color-input-border)' }}>
+              <div className="flex items-center gap-2 rounded-[10px] pl-2.5 pr-2.5 py-2 transition-all" style={{ backgroundColor: 'var(--color-input-bg)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--color-input-border)' }}>
                 <input
                   ref={overlayInputRef}
                   type="text"
                   placeholder="Ask Booking Assistant anything..."
                   value={inputValue}
-                  onChange={(e) => setInputValue(e.target.value)}
+                  onChange={handleInputChange}
                   onKeyDown={handleKeyDown}
                   className="flex-1 bg-transparent text-base placeholder-gray-500 outline-none min-w-0"
                   style={{ color: 'var(--color-text-heading)' }}
                 />
-                {inputValue.trim() ? (
-                  <button
-                    onClick={() => handleSend()}
-                    className="w-9 h-9 flex items-center justify-center rounded-xl transition-colors shrink-0"
-                    style={{ backgroundColor: 'var(--color-action)', color: 'var(--color-action-text)' }}
-                  >
-                    <Send className="w-3.5 h-3.5" />
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => handleSend()}
-                    className="w-9 h-9 flex items-center justify-center rounded-xl transition-colors shrink-0"
-                    style={{ backgroundColor: 'var(--color-action)', color: 'var(--color-action-text)' }}
-                  >
-                    <Send className="w-3.5 h-3.5" />
-                  </button>
-                )}
+                <button
+                  onClick={handleSend}
+                  disabled={!hasInput}
+                  className="w-9 h-9 flex items-center justify-center rounded-xl transition-all shrink-0 disabled:opacity-30 disabled:cursor-not-allowed"
+                  style={{ backgroundColor: hasInput ? 'var(--color-action)' : 'var(--color-chip-bg)', color: hasInput ? 'var(--color-action-text)' : 'var(--color-text-secondary)' }}
+                >
+                  <Send className="w-3.5 h-3.5" />
+                </button>
               </div>
             </div>
           </motion.div>
@@ -406,8 +444,8 @@ export function AiChat({ variant = "default", overlayOpen, onOverlayChange }: { 
               className="flex-1 flex flex-col min-h-0 overflow-hidden"
               style={{ backgroundColor: 'var(--color-page-bg)' }}
             >
-              {/* Chat content card */}
-              <div className="border rounded-[16px] flex flex-col flex-1 overflow-hidden mx-4 mt-1.5 mb-0 min-h-0" style={{ borderColor: 'var(--color-divider)' }}>
+              {/* Chat content card — mt-0 so top edge is flush with map's top */}
+              <div className="border rounded-[16px] flex flex-col flex-1 overflow-hidden mx-4 mb-0 min-h-0" style={{ borderColor: 'var(--color-divider)' }}>
                 <div className="flex items-center justify-between px-4 py-3 border-b shrink-0" style={{ borderColor: 'var(--color-divider)' }}>
                   <div className="flex items-center gap-2">
                     <div className="w-7 h-7 shrink-0 text-brand">
@@ -419,7 +457,7 @@ export function AiChat({ variant = "default", overlayOpen, onOverlayChange }: { 
                     </div>
                   </div>
                   <button
-                    onClick={() => setIsOverlayOpen(false)}
+                    onClick={handleCloseOverlay}
                     className="w-8 h-8 flex items-center justify-center rounded-[6px] transition-colors"
                     style={{ color: 'var(--color-text-secondary)' }}
                   >
@@ -439,7 +477,7 @@ export function AiChat({ variant = "default", overlayOpen, onOverlayChange }: { 
                           <Vector16 />
                         </div>
                       )}
-                      {renderMessageContent(msg, "max-w-[80%]")}
+                      <MessageBubble msg={msg} maxW="max-w-[80%]" />
                     </div>
                   ))}
 
@@ -448,22 +486,18 @@ export function AiChat({ variant = "default", overlayOpen, onOverlayChange }: { 
                       <div className="w-6 h-6 shrink-0 mr-2 mt-0.5 text-brand">
                         <Vector16 />
                       </div>
-                      <div className="px-3.5 py-2.5 rounded-2xl rounded-bl-sm shadow-sm flex items-center gap-1" style={{ backgroundColor: 'var(--color-chat-assistant-bg)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--color-chat-assistant-border)' }}>
-                        <div className="w-1.5 h-1.5 rounded-full animate-bounce [animation-delay:0ms]" style={{ backgroundColor: 'var(--color-text-secondary)' }} />
-                        <div className="w-1.5 h-1.5 rounded-full animate-bounce [animation-delay:150ms]" style={{ backgroundColor: 'var(--color-text-secondary)' }} />
-                        <div className="w-1.5 h-1.5 rounded-full animate-bounce [animation-delay:300ms]" style={{ backgroundColor: 'var(--color-text-secondary)' }} />
-                      </div>
+                      <TypingDots />
                     </div>
                   )}
                   <div ref={overlayMessagesEndRef} />
                 </div>
               </div>
 
-              {/* Overlay input bar */}
-              <div className="px-4 pt-3 pb-3 shrink-0 space-y-2.5" style={{ backgroundColor: 'var(--color-page-bg)' }}>
-                <div className="flex items-center gap-2 rounded-2xl pl-2.5 pr-2.5 py-2 transition-all" style={{ backgroundColor: 'var(--color-input-bg)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--color-input-border)' }}>
+              {/* Overlay input bar — pb-0 so the input sits flush with the map's bottom edge */}
+              <div className="px-4 pt-3 shrink-0 space-y-2.5" style={{ backgroundColor: 'var(--color-page-bg)' }}>
+                <div className="flex items-center gap-2 rounded-[10px] pl-2.5 pr-2.5 py-2 transition-all" style={{ backgroundColor: 'var(--color-input-bg)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--color-input-border)' }}>
                   <button
-                    onClick={() => setIsOverlayOpen(false)}
+                    onClick={handleCloseOverlay}
                     className="w-8 h-8 flex items-center justify-center rounded-full transition-colors shrink-0"
                     style={{ color: 'var(--color-text-secondary)' }}
                   >
@@ -476,28 +510,19 @@ export function AiChat({ variant = "default", overlayOpen, onOverlayChange }: { 
                     type="text"
                     placeholder="Ask Booking Assistant anything..."
                     value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
+                    onChange={handleInputChange}
                     onKeyDown={handleKeyDown}
                     className="flex-1 bg-transparent text-base placeholder-gray-500 outline-none min-w-0"
                     style={{ color: 'var(--color-text-heading)' }}
                   />
-                  {inputValue.trim() ? (
-                    <button
-                      onClick={() => handleSend()}
-                      className="w-9 h-9 flex items-center justify-center rounded-xl transition-colors shrink-0"
-                    style={{ backgroundColor: 'var(--color-action)', color: 'var(--color-action-text)' }}
-                    >
-                      <Send className="w-3.5 h-3.5" />
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => handleSend()}
-                      className="w-9 h-9 flex items-center justify-center rounded-xl transition-colors shrink-0"
-                      style={{ backgroundColor: 'var(--color-action)', color: 'var(--color-action-text)' }}
-                    >
-                      <Send className="w-3.5 h-3.5" />
-                    </button>
-                  )}
+                  <button
+                    onClick={handleSend}
+                    disabled={!hasInput}
+                    className="w-9 h-9 flex items-center justify-center rounded-xl transition-all shrink-0 disabled:opacity-30 disabled:cursor-not-allowed"
+                    style={{ backgroundColor: hasInput ? 'var(--color-action)' : 'var(--color-chip-bg)', color: hasInput ? 'var(--color-action-text)' : 'var(--color-text-secondary)' }}
+                  >
+                    <Send className="w-3.5 h-3.5" />
+                  </button>
                 </div>
               </div>
             </motion.div>
@@ -507,172 +532,43 @@ export function AiChat({ variant = "default", overlayOpen, onOverlayChange }: { 
 
       {/* Bottom bar — hidden on desktop when overlay is open (overlay has its own input) */}
       {!(variant === "default" && isOverlayOpen) && (
-      <div className={`shrink-0 flex flex-col ${
-        variant === "mobile-float"
-          ? "fixed bottom-0 left-0 right-0 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] rounded-t-[12px] overflow-hidden"
-          : ""
-      }`} style={variant === "mobile-float" ? { backgroundColor: 'var(--color-page-bg)' } : undefined}>
-        {/* Expanded chat panel */}
-        <AnimatePresence>
-          {isExpanded && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: 320, opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ type: "spring", damping: 28, stiffness: 300 }}
-              className="overflow-hidden"
-            >
-              <div className="h-full flex flex-col">
-                {/* Chat header */}
-                <div className="flex items-center justify-between px-4 py-2 border-b" style={{ borderColor: 'var(--color-divider)' }}>
-                  <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 shrink-0 text-brand">
-                      <Vector16 />
-                    </div>
-                    <span className="text-xs" style={{ color: 'var(--color-text-primary)' }}>
-                      Chat with Booking Assistant
-                    </span>
-                    <span className="text-[9px] text-brand bg-brand-light px-1.5 py-0.5 rounded-full">
-                      AI
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => setIsExpanded(false)}
-                    className="w-6 h-6 flex items-center justify-center rounded-[6px] transition-colors"
-                    style={{ color: 'var(--color-text-secondary)' }}
-                  >
-                    <ChevronDown className="w-4 h-4" />
-                  </button>
-                </div>
-
-                {/* Messages */}
-                <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3 scrollbar-hide" style={{ backgroundColor: 'var(--color-page-bg)' }}>
-                  {messages.length === 0 && (
-                    <div className="flex flex-col items-center justify-center h-full gap-3 py-4">
-                      <div className="w-10 h-10 shrink-0 text-brand">
-                        <Vector16 />
-                      </div>
-                      <p className="text-xs text-center max-w-[260px]" style={{ color: 'var(--color-text-secondary)' }}>
-                        Ask me anything about hotels, rates, or recommendations for your group.
-                      </p>
-                      <div className="flex flex-wrap gap-1.5 justify-center mt-1">
-                        {SUGGESTIONS.map((s) => (
-                          <button
-                            key={s.label}
-                            onClick={() => handleSuggestion(s.label)}
-                            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full text-[11px] transition-colors"
-                            style={{ backgroundColor: 'var(--color-chip-bg)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--color-chip-border)', color: 'var(--color-chip-text)' }}
-                          >
-                            <s.icon className="w-3 h-3" />
-                            {s.label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {messages.map((msg) => (
-                    <div
-                      key={msg.id}
-                      className={`flex ${
-                        msg.role === "user" ? "justify-end" : "justify-start"
-                      }`}
-                    >
-                      {msg.role === "assistant" && (
-                        <div className="w-5 h-5 shrink-0 mr-2 mt-0.5 text-brand">
-                          <Vector16 />
-                        </div>
-                      )}
-                      <div
-                        className={`max-w-[85%] px-3 py-2 rounded-2xl text-xs leading-relaxed ${
-                          msg.role === "user"
-                            ? "rounded-br-sm"
-                            : "rounded-bl-sm shadow-sm"
-                        }`}
-                        style={
-                          msg.role === "user"
-                            ? { backgroundColor: 'var(--color-chat-user-bg)', color: 'var(--color-chat-user-text)' }
-                            : { backgroundColor: 'var(--color-chat-assistant-bg)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--color-chat-assistant-border)', color: 'var(--color-chat-assistant-text)' }
-                        }
-                      >
-                        {msg.content.split("\n").map((line, i) => (
-                          <span key={i}>
-                            {line.split(/(\*\*.*?\*\*)/).map((part, j) =>
-                              part.startsWith("**") && part.endsWith("**") ? (
-                                <strong key={j} style={{ color: msg.role === "user" ? 'var(--color-chat-user-text)' : 'var(--color-text-heading)' }}>
-                                  {part.slice(2, -2)}
-                                </strong>
-                              ) : (
-                                part
-                              )
-                            )}
-                            {i < msg.content.split("\n").length - 1 && <br />}
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-
-                  {isTyping && (
-                    <div className="flex justify-start">
-                      <div className="w-5 h-5 shrink-0 mr-2 mt-0.5 text-brand">
-                        <Vector16 />
-                      </div>
-                      <div className="px-3 py-2.5 rounded-2xl rounded-bl-sm shadow-sm flex items-center gap-1" style={{ backgroundColor: 'var(--color-chat-assistant-bg)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--color-chat-assistant-border)' }}>
-                        <div className="w-1.5 h-1.5 rounded-full animate-bounce [animation-delay:0ms]" style={{ backgroundColor: 'var(--color-text-secondary)' }} />
-                        <div className="w-1.5 h-1.5 rounded-full animate-bounce [animation-delay:150ms]" style={{ backgroundColor: 'var(--color-text-secondary)' }} />
-                        <div className="w-1.5 h-1.5 rounded-full animate-bounce [animation-delay:300ms]" style={{ backgroundColor: 'var(--color-text-secondary)' }} />
-                      </div>
-                    </div>
-                  )}
-                  <div ref={messagesEndRef} />
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Input bar — always visible */}
-        <div className="px-0 pt-0 pb-0">
+        <div
+          className={`shrink-0 flex flex-col ${
+            variant === "mobile-float"
+              ? "fixed bottom-0 left-0 right-0 z-50 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] rounded-t-[12px] overflow-hidden"
+              : ""
+          }`}
+          style={variant === "mobile-float" ? { backgroundColor: 'var(--color-page-bg)' } : undefined}
+        >
           <div className="flex items-center gap-2 rounded-[10px] pl-2.5 pr-2.5 py-2 transition-all" style={{ backgroundColor: 'var(--color-input-bg)', borderWidth: 1, borderStyle: 'solid', borderColor: 'var(--color-input-border)' }}>
             <button
-              onClick={() => {
-                if (isOverlayOpen) {
-                  setIsOverlayOpen(false);
-                }
-              }}
+              onClick={handleCloseOverlay}
               className="w-8 h-8 flex items-center justify-center rounded-full transition-colors shrink-0"
               style={{ color: 'var(--color-text-secondary)' }}
             >
-              {isExpanded ? (
-                <X className="w-5 h-5" />
-              ) : (
-                <div className="w-5 h-[22px]">
-                  <Vector />
-                </div>
-              )}
+              <div className="w-5 h-[22px]">
+                <Vector />
+              </div>
             </button>
             <input
-              ref={inputRef}
               type="text"
               placeholder="Ask Booking Assistant anything..."
               value={inputValue}
-              onChange={(e) => setInputValue(e.target.value)}
+              onChange={handleInputChange}
               onKeyDown={handleKeyDown}
               className="flex-1 bg-transparent text-base placeholder-gray-500 outline-none min-w-0"
               style={{ color: 'var(--color-text-heading)' }}
             />
             <button
-              onClick={() => handleSend()}
-              disabled={!inputValue.trim()}
+              onClick={handleSend}
+              disabled={!hasInput}
               className="w-9 h-9 flex items-center justify-center rounded-xl transition-all shrink-0 disabled:opacity-30 disabled:cursor-not-allowed"
-              style={{ backgroundColor: inputValue.trim() ? 'var(--color-action)' : 'var(--color-chip-bg)', color: inputValue.trim() ? 'var(--color-action-text)' : 'var(--color-text-secondary)' }}
+              style={{ backgroundColor: hasInput ? 'var(--color-action)' : 'var(--color-chip-bg)', color: hasInput ? 'var(--color-action-text)' : 'var(--color-text-secondary)' }}
             >
               <Send className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
-      </div>
       )}
     </>
   );

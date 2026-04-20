@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useLayoutEffect, useState, useRef, useCallback } from 'react';
 import { BrowserRouter, Routes, Route, useSearchParams, useLocation, Link } from 'react-router-dom';
 import { ChevronDown, Share2, MapPin, Sun, Moon } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -14,6 +14,7 @@ import DetailsPage from './pages/DetailsPage';
 import DivisionsPage from './pages/DivisionsPage';
 import ThemePlayground from './pages/ThemePlayground';
 import HotelsPage from './pages/HotelsPage';
+import DecPreview from './pages/DecPreview';
 import { PreviewProvider } from './PreviewContext';
 
 /** Banner shown in preview mode with link back to playground + mode toggle */
@@ -157,8 +158,12 @@ function PreviewContent() {
 /** Shared layout with persistent header that animates between pages */
 function MainLayout() {
   const location = useLocation();
-  const [navVisible, setNavVisible] = useState(false);
-  const navTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [navPeek, setNavPeek] = useState(false);
+  const [fullHeight, setFullHeight] = useState(0);
+  const [navRowHeight, setNavRowHeight] = useState(0);
+  const headerMeasureRef = useRef<HTMLDivElement>(null);
+  const navRowRef = useRef<HTMLDivElement>(null);
+  const leaveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Re-apply brand theme on route change
   useEffect(() => {
@@ -171,76 +176,156 @@ function MainLayout() {
     }
   }, [location.pathname]);
 
-  const isHotels = location.pathname === '/hotels';
-
-  const handleHeaderEnter = useCallback(() => {
-    if (navTimeoutRef.current) clearTimeout(navTimeoutRef.current);
-    setNavVisible(true);
+  // Measure EventHeader's natural full height + nav-row height. Both are
+  // observed so font-load / resize / content changes stay accurate.
+  useLayoutEffect(() => {
+    const fullEl = headerMeasureRef.current;
+    const navEl = navRowRef.current;
+    if (!fullEl || !navEl) return;
+    const updateFull = () => setFullHeight(fullEl.offsetHeight);
+    const updateNav = () => setNavRowHeight(navEl.offsetHeight);
+    updateFull();
+    updateNav();
+    const ro = new ResizeObserver(() => { updateFull(); updateNav(); });
+    ro.observe(fullEl);
+    ro.observe(navEl);
+    return () => ro.disconnect();
   }, []);
 
-  const handleHeaderLeave = useCallback(() => {
-    navTimeoutRef.current = setTimeout(() => setNavVisible(false), 200);
+  const isHotels = location.pathname === '/hotels';
+
+  // Leaving /hotels should immediately clear peek so full-height transition
+  // starts from the current peek offset, not a lingering hover state.
+  useEffect(() => {
+    if (!isHotels) {
+      if (leaveTimeoutRef.current) clearTimeout(leaveTimeoutRef.current);
+      setNavPeek(false);
+    }
+  }, [isHotels]);
+
+  // Clip-container height drives the whole drawer animation:
+  //   /details         → fullHeight   (fully visible)
+  //   /hotels + peek   → navRowHeight (just nav row)
+  //   /hotels default  → 0            (hidden behind TopBar)
+  // The EventHeader inside is bottom-anchored (flex + justify-end) so as the
+  // container grows, content appears to slide DOWN from behind the TopBar.
+  // Fall back to 'auto' until the first measurement lands so /details doesn't
+  // render collapsed on initial load.
+  const measured = fullHeight > 0;
+  const drawerHeight: number | 'auto' = isHotels
+    ? (navPeek ? navRowHeight : 0)
+    : (measured ? fullHeight : 'auto');
+
+  const handleEnter = useCallback(() => {
+    if (leaveTimeoutRef.current) clearTimeout(leaveTimeoutRef.current);
+    setNavPeek(true);
+  }, []);
+
+  const handleLeave = useCallback(() => {
+    leaveTimeoutRef.current = setTimeout(() => setNavPeek(false), 200);
   }, []);
 
   return (
-    <div className={`${isHotels ? 'h-screen flex flex-col' : 'min-h-screen'}`} style={{ backgroundColor: 'var(--color-page-bg)', transition: 'background-color 0.3s ease' }}>
-      {/* TopBar + nav: on hotels page, nav hides and slides down on hover */}
+    // Single persistent shell for both routes: always h-screen flex column.
+    // Header container and content container are siblings that never re-flow
+    // during a route change — only their "size channel" (drawer height) and
+    // "opacity channel" (page crossfade) animate, both on the exact same 350ms
+    // cubic-bezier clock.
+    <div className="h-screen flex flex-col" style={{ backgroundColor: 'var(--color-page-bg)', transition: 'background-color 0.3s ease' }}>
+      {/* Header container — one element, animates its own height.
+          On /hotels the drawer is positioned absolutely below the TopBar so the
+          hover-peek overlays the hotels content below instead of pushing it
+          down. On other routes the drawer stays in flow so the Details page
+          sits naturally beneath the full-height header. The outer div keeps
+          the hover handlers — absolute descendants still count as "inside"
+          for React's onMouseEnter/Leave, so peek survives the cursor moving
+          from the TopBar down onto the overlaid nav row. */}
       <div
         className="relative z-30 shrink-0"
-        onMouseEnter={isHotels ? handleHeaderEnter : undefined}
-        onMouseLeave={isHotels ? handleHeaderLeave : undefined}
+        onMouseEnter={isHotels ? handleEnter : undefined}
+        onMouseLeave={isHotels ? handleLeave : undefined}
       >
         <TopBar />
-        {isHotels ? (
-          <div
-            className="absolute left-0 right-0 overflow-hidden"
-            style={{ top: '100%', zIndex: 20, pointerEvents: navVisible ? 'auto' : 'none' }}
-          >
-            <div
-              className="transition-transform duration-300 ease-out"
-              style={{ transform: navVisible ? 'translateY(0)' : 'translateY(-100%)' }}
-            >
-              <EventHeader />
-            </div>
+
+        {/* Sliding drawer. One element, one height value — navigating and
+            hovering both animate the same `height`, so peek → full is a single
+            continuous transition with no remount or state jump. Flex +
+            justify-end anchors the EventHeader to the bottom edge, so the
+            content slides down from behind the TopBar as height grows. */}
+        <div
+          style={{
+            height: drawerHeight,
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'flex-end',
+            transition: 'height 350ms cubic-bezier(0.25, 0.1, 0.25, 1)',
+            backgroundColor: 'var(--color-header-bg)',
+            ...(isHotels
+              ? {
+                  position: 'absolute' as const,
+                  top: '100%',
+                  left: 0,
+                  right: 0,
+                  zIndex: 30,
+                  // Soft shadow only when peek is visible, so overlaid nav
+                  // reads as a layer above the hotels feed.
+                  boxShadow: navPeek ? '0 8px 24px rgba(0, 0, 0, 0.25)' : 'none',
+                  transition:
+                    'height 350ms cubic-bezier(0.25, 0.1, 0.25, 1), box-shadow 250ms cubic-bezier(0.25, 0.1, 0.25, 1)',
+                }
+              : {}),
+          }}
+        >
+          <div ref={headerMeasureRef}>
+            <EventHeader hideEventInfo={false} navRowRef={navRowRef} />
           </div>
-        ) : (
-          <EventHeader />
-        )}
+        </div>
       </div>
-      <AnimatePresence mode="wait">
-        {isHotels ? (
-          <motion.div
-            key="hotels"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="flex-1 flex flex-col min-h-0"
-          >
-            <HotelsPage headerless />
-          </motion.div>
-        ) : (
-          <motion.div
-            key="details"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="max-w-[1200px] mx-auto px-12"
-          >
-            <EventBanner />
-            <TabNavigation />
-            <Routes>
-              <Route path="/" element={<DetailsPage />} />
-              <Route path="/divisions" element={<DivisionsPage />} />
-              <Route path="/rules" element={<DetailsPage />} />
-              <Route path="/payment" element={<DetailsPage />} />
-              <Route path="/accommodations" element={<DetailsPage />} />
-              <Route path="/sponsors" element={<DetailsPage />} />
-            </Routes>
-          </motion.div>
-        )}
-      </AnimatePresence>
+
+      {/* Content container — one persistent rectangle (flex-1, min-h-0, relative).
+          Each route renders as an absolute inset-0 child, so exit + enter
+          overlap in the same box without ever reflowing each other. There's
+          nothing to stagger against the header; both containers just resize
+          or fade inside the same shell. */}
+      <div className="flex-1 min-h-0 relative">
+        <AnimatePresence initial={false}>
+          {isHotels ? (
+            <motion.div
+              key="hotels"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
+              className="absolute inset-0 flex flex-col overflow-hidden"
+            >
+              <HotelsPage headerless />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="details"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
+              className="absolute inset-0 overflow-y-auto"
+            >
+              <div className="max-w-[1200px] mx-auto px-12">
+                <EventBanner />
+                <TabNavigation />
+                <Routes>
+                  <Route path="/" element={<DetailsPage />} />
+                  <Route path="/divisions" element={<DivisionsPage />} />
+                  <Route path="/rules" element={<DetailsPage />} />
+                  <Route path="/payment" element={<DetailsPage />} />
+                  <Route path="/accommodations" element={<DetailsPage />} />
+                  <Route path="/sponsors" element={<DetailsPage />} />
+                </Routes>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
       <FloatingToolbar />
     </div>
   );
@@ -252,6 +337,7 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route path="/playground" element={<ThemePlayground />} />
+          <Route path="/dec-preview" element={<DecPreview />} />
           <Route path="/preview/*" element={<PreviewContent />} />
           <Route path="/*" element={<MainLayout />} />
         </Routes>

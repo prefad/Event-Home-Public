@@ -11,7 +11,14 @@ const NAV_ITEMS = [
   { label: 'Bulletin Board', path: null },
 ];
 
-export default function EventHeader({ hideEventInfo }: { hideEventInfo?: boolean } = {}) {
+export default function EventHeader({
+  hideEventInfo,
+  navRowRef,
+}: {
+  hideEventInfo?: boolean;
+  /** Optional ref attached to the nav-row container so parents can measure its height. */
+  navRowRef?: React.Ref<HTMLDivElement>;
+} = {}) {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -58,7 +65,7 @@ export default function EventHeader({ hideEventInfo }: { hideEventInfo?: boolean
       </AnimatePresence>
 
       {/* Navigation Tabs */}
-      <div className="px-10 py-4 flex items-center gap-2">
+      <div ref={navRowRef} className="px-10 py-4 flex items-center gap-2">
         <div className="flex items-center gap-2 flex-1">
         {NAV_ITEMS.map((item) => {
           const isActive = item.path === '/hotels'

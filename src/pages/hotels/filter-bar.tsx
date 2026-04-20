@@ -467,7 +467,8 @@ export function FilterBar({
                       max={500}
                       value={priceRange[1]}
                       onChange={(e) => onPriceRangeChange([priceRange[0], parseInt(e.target.value)])}
-                      className="w-full accent-brand"
+                      className="w-full"
+                      style={{ accentColor: 'var(--color-action)' }}
                     />
                   </motion.div>
                 </>

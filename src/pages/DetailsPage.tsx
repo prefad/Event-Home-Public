@@ -1,3 +1,4 @@
+import { Button } from '@eventconnect/dec';
 import { eventData } from '../data/eventData';
 import { previewEventData } from '../data/previewData';
 import { useIsPreview } from '../PreviewContext';
@@ -39,12 +40,7 @@ export default function DetailsPage() {
         <p className="text-sm leading-5 mb-6" style={{ color: 'var(--color-text-secondary)' }}>{data.accommodations}</p>
         <div className="text-center mb-6">
           <p className="text-sm font-bold mb-3" style={{ color: 'var(--color-text-primary)' }}>Click here to register to this event!</p>
-          <button
-            className="inline-flex items-center text-sm font-medium px-4 py-2 rounded"
-            style={{ backgroundColor: 'var(--color-cta)', color: 'var(--color-cta-text, var(--color-action-text))' }}
-          >
-            New Registration
-          </button>
+          <Button variant="destructive">New Registration</Button>
         </div>
         <div className="w-full h-72 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'var(--color-map-bg)' }}>
           <div className="text-center" style={{ color: 'var(--color-text-secondary)' }}>

@@ -4,7 +4,32 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Establish CSS cascade layer order BEFORE any stylesheet loads.
+         Low priority → high priority. DEC's prebuilt CSS (Tailwind v4)
+         emits rules inside @layer base and @layer utilities; our own
+         Tailwind v3 preflight/components/utilities get wrapped in
+         tw-base/tw-components/tw-utilities in src/index.css. Explicitly
+         ordering them here ensures DEC's layered utilities beat our
+         Tailwind v3 preflight (e.g. `button { background: transparent }`). -->
+    <style>
+      @layer app-reset, tw-base, base, tw-components, components, utilities, tw-utilities, app;
+    </style>
+    <!-- DEC design system: served as a static asset from /public so Vite's
+         Tailwind v3 PostCSS pipeline doesn't try to process its v4-built
+         @layer rules. Load before our index.css. -->
+    <link rel="stylesheet" href="/dec.css" />
     <title>Vite + React + TS</title>
+    <!-- DEC design system: flash-prevention — reads theme from localStorage and
+         sets data-theme on <html> before first paint so there's no light flash
+         when the user has dark mode on. -->
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('theme') || 'dark';
+          document.documentElement.setAttribute('data-theme', t);
+        } catch (e) {}
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
